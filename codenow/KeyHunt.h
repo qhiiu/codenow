@@ -44,7 +44,6 @@ private:
 
 	void InitGenratorTable();
 
-	// std::string GetHex(std::vector<unsigned char>& buffer);
 	bool checkPrivKey(std::string addr, Int& key, int32_t incr);
 
 	void output(std::string addr, std::string pAddr, std::string pAddrHex, std::string pubKey);
@@ -68,12 +67,9 @@ private:
 	bool endOfSearch;
 	int nbGPUThread;
 	int nbFoundKey;
-	uint64_t targetCounter;
 
 	std::string outputFile;
-	std::string inputFile;
 	uint32_t hash160Keccak[5];
-	uint32_t xpoint[8];
 
 	Int priv_dec;
 	uint64_t xN;

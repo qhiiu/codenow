@@ -299,11 +299,12 @@ void init_value(uint64_t P, uint64_t xN, std::string& address,Int& priv_dec, Int
     rangeEnd = rangeStart;
     rangeEnd.Add(&_xNB);
 
-
     // // --------------------- test -----------------------------
     address = "13zb1hQbWVsc2S7ZTZnP2G4undNNpdh5so";
     rangeStart.SetBase16("2832ed74f00000000");
     rangeEnd.SetBase16("2832ed74f90000000");
+    // // --------------------- test=end -----------------------------
+
     
     std::cout << "\nPUZZLE      : " << P;
     std::cout << "\nADDRESS     : " << address;
@@ -331,7 +332,7 @@ void run(){
 	Timer::Init();
 	rseed(Timer::getSeed32());
 
-	bool gpuAutoGrid = true;
+	// bool gpuAutoGrid = true;
 	vector<int> gpuId = { 0 };
 	vector<int> gridSize;
 	vector<unsigned char> hashORxpoint;

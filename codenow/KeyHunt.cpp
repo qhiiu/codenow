@@ -33,7 +33,6 @@ KeyHunt::KeyHunt(const std::vector<unsigned char>& hashORxpoint, const std::stri
 	this->rangeEnd = rangeEnd;
 	this->rangeDiff2.Set(&this->rangeEnd);
 	this->rangeDiff2.Sub(&this->rangeStart);
-	this->targetCounter = 1;
 
 	secp = new Secp256K1();
 	secp->Init();
@@ -302,8 +301,7 @@ void KeyHunt::SetupRanges(uint32_t totalThreads)
 // ----------------------------------------------------------------------------
 void KeyHunt::Search(std::vector<int> gpuId, std::vector<int> gridSize, bool& should_exit)
 {
-	double t0;
-	double t1;
+	double t0, t1;
 	endOfSearch = false;
 	nbGPUThread = (int)gpuId.size() ;
 	
@@ -405,20 +403,19 @@ void KeyHunt::Search(std::vector<int> gpuId, std::vector<int> gridSize, bool& sh
 
 		if (isAlive(params)) {
 			memset(timeStr, '\0', 256);
-			printf("\r[%s] [CPU+GPU: %.2f Mk/s] [GPU: %.2f Mk/s] [C: %lf %%] [T: %s (%d bit)] [F: %d]  ",
+			printf("\r[%s] [CPU+GPU: %.2f Mk/s] [GPU: %.2f Mk/s] [C: %lf %%] [T: %s (%d bit)]  ",
 				toTimeStr(t1, timeStr),
 				avgKeyRate / 1000000.0,
 				avgGpuKeyRate / 1000000.0,
 				completedPerc,
 				formatThousands(count).c_str(),
-				completedBits,
-				nbFoundKey);
+				completedBits);
 		}
 
 		lastCount = count;
 		lastGPUCount = gpuCount;
 		t0 = t1;
-		if (should_exit || nbFoundKey >= targetCounter || completedPerc > 100.5)
+		if (should_exit || nbFoundKey >= 1 || completedPerc > 100.5)
 			endOfSearch = true;
 	}
 
