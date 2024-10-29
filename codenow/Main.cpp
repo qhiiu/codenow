@@ -1,22 +1,38 @@
+// #include "Timer.h"
+// #include "KeyHunt.h"
+// #include "Base58.h"
+// #include <string>
+// #include <cassert>
+// #include <signal.h>
+// #include <unistd.h>
+// #include <iostream>
+// #include <cstdint>
+// #include <fstream>
+// #include <map>
+
 #include "Timer.h"
 #include "KeyHunt.h"
 #include "Base58.h"
 #include <string>
+#include <string.h>
+#include <stdexcept>
 #include <cassert>
+#include <algorithm>
 #include <signal.h>
 #include <unistd.h>
 #include <iostream>
 #include <cstdint>
+#include <sstream>
 #include <fstream>
 #include <map>
 
 using namespace std;
 
-// // ----------------------------------------------------------------------------
+//-----------------------------------------------------------------------
 
 void CtrlHandler(int signum) {
 	printf("\nBYE");
-	printf("\nBYE");
+	printf("\nBYE\n\n");
 	exit(signum);
 }
 
@@ -29,14 +45,20 @@ void check_file_exist(){
     }
 }
 
-uint64_t check_data(std::string priv){
-    ifstream file("x67.txt");
+//-----------------------------------------------------------------------
+
+uint64_t check_data(uint64_t P, std::string priv)
+{
+    std::string fileName;
+    fileName = "x" + std::to_string(P) + ".txt";
+
+    ifstream file(fileName);
     string line;
-	uint64_t nChecked = 0;
+	uint64_t n = 0;
 
     if (file.is_open()) {
         while (getline(file, line)) {
-            nChecked += 1;
+            n += 1;
             if (priv == line){
               std::cout << std::endl <<"-------- Had in Database !!! exit() -------"<< std::endl << std::endl;
               exit(0);
@@ -45,8 +67,10 @@ uint64_t check_data(std::string priv){
 
         file.close();
     }   else {   cout << "Err file !!!" << endl;   }
-	return nChecked;
+	return n;
 }
+
+//-----------------------------------------------------------------------
 
 void init_value(uint64_t P, uint64_t xN, std::string& address,Int& priv_dec, Int& rangeStart, Int& rangeEnd)
 {
@@ -245,30 +269,23 @@ void init_value(uint64_t P, uint64_t xN, std::string& address,Int& priv_dec, Int
         list_addr[160] = "1NBC8uXJy1GiJ6drkiZa1WuKn51ps7EPTv";
 
     int solved_P[14] = {66, 70, 75, 80, 85, 90, 95, 100, 105, 110, 115, 120, 125, 130};
-    
+
+    //check P
+    for (int i = 0; i < (sizeof(solved_P) / sizeof(solved_P[0])); ++i) {
+        if (solved_P[i] == P) {
+            printf("\n\n\n\n----- !! P = %lu solved !! ----- try other P \n\n\n\n", P);
+            exit(-1);
+        }
+    }
+
     address = list_addr[P]; // --------1
 
-    std::cout << "\nPUZZLE      : " << P;
-    std::cout << "\nADDRESS     : " << address;
-    std::cout << "\nH_S         : " << list_range_dec[P];
-    std::cout << "\nH_E         : " << list_range_dec[P+1] << "\n";
-
-    // generate Priv_dec and get addr + range
+    // generate Priv_dec + addr + range
 	Int max;
     max.SetBase10(list_range_dec[P]);
 
     priv_dec.Rand(&max);
     priv_dec.Add(&max);
-
-    //print priv_dec info 
-    uint64_t nChecked = 0;
-    Int priv_dec_copy = priv_dec;
-    for (int i = 0; i < xN; i++){
-        std::cout << "\nPriv_dec ======> " << priv_dec_copy.GetBase10(); //print 
-        nChecked = check_data(priv_dec_copy.GetBase10()); // check priv
-        priv_dec_copy.AddOne(); // increase priv 
-    } 
-    std::cout << "\nnChecked : " << nChecked ;
 
     Int _10B, _xNB;
     _10B.SetBase10("10000000000"); 
@@ -281,7 +298,30 @@ void init_value(uint64_t P, uint64_t xN, std::string& address,Int& priv_dec, Int
     //rangEnd
     rangeEnd = rangeStart;
     rangeEnd.Add(&_xNB);
+
+
+    // // --------------------- test -----------------------------
+    address = "13zb1hQbWVsc2S7ZTZnP2G4undNNpdh5so";
+    rangeStart.SetBase16("2832ed74f00000000");
+    rangeEnd.SetBase16("2832ed74f90000000");
+    
+    std::cout << "\nPUZZLE      : " << P;
+    std::cout << "\nADDRESS     : " << address;
+    std::cout << "\nRANGE START : " << list_range_dec[P];
+    std::cout << "\nRANGE END   : " << list_range_dec[P+1] << "\n";
+
+    //print priv_dec info 
+    uint64_t nChecked = 0;
+    Int priv_dec_copy = priv_dec;
+    for (int i = 0; i < xN; i++){
+        std::cout << "\nPriv_dec ======> " << priv_dec_copy.GetBase10(); //print 
+        nChecked = check_data(P, priv_dec_copy.GetBase10()); // check priv
+        priv_dec_copy.AddOne(); // increase priv 
+    } 
+    std::cout << "\nnChecked : " << nChecked ;
 }
+
+//-----------------------------------------------------------------------
 
 void run(){
     
@@ -291,14 +331,12 @@ void run(){
 	Timer::Init();
 	rseed(Timer::getSeed32());
 
-	bool gpuEnable = true;
 	bool gpuAutoGrid = true;
 	vector<int> gpuId = { 0 };
 	vector<int> gridSize;
 	vector<unsigned char> hashORxpoint;
 	hashORxpoint.clear();
 
-    uint32_t maxFound = 1;
     std::string address = "";
 	Int priv_dec, rangeStart, rangeEnd;
 
@@ -312,11 +350,6 @@ void run(){
 
 	std::string outputFile = "$.txt";
     std::cout << "\n\nOUTPUT FILE  : " << outputFile;
-
-    //--------------------- test 
-    // address = "13zb1hQbWVsc2S7ZTZnP2G4undNNpdh5so";
-    // rangeStart.SetBase16("2832ed74f00000000");
-    // rangeEnd.SetBase16("2832ed74f90000000");
 
 
 	if (DecodeBase58(address, hashORxpoint)) {
@@ -336,16 +369,15 @@ void run(){
 
 	KeyHunt* v;
     bool should_exit = false;
-	v = new KeyHunt(hashORxpoint, gpuEnable, outputFile, maxFound, rangeStart, rangeEnd, priv_dec, xN, P, should_exit);
+	v = new KeyHunt(hashORxpoint, outputFile, rangeStart, rangeEnd, priv_dec, xN, P, should_exit);
 	v->Search(gpuId, gridSize, should_exit);
 
 	delete v;
 };
 
 int main(){
-	int sleepTime = 100; 
-    // std::cout << "sleepTime xT : "; std::cin >> sleepTime; std::cout<< endl;  //----------- fix
-
+	int sleepTime = 10; 
+    // std::cout << "sleepTime xT : "; std::cin >> sleepTime; std::cout<< endl;  //inpu-t
 
 	for (int i = 0; i < 9999; i++)
 	{

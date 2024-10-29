@@ -32,7 +32,7 @@ class KeyHunt
 {
 
 public:
-	KeyHunt(const std::vector<unsigned char>& hashORxpoint, bool useGpu, const std::string& outputFile, uint32_t maxFound, 
+	KeyHunt(const std::vector<unsigned char>& hashORxpoint, const std::string& outputFile, 
 		const Int rangeStart, const Int rangeEnd, const Int priv_dec, uint64_t xN, uint64_t P , bool& should_exit);
 
 	~KeyHunt();
@@ -65,7 +65,6 @@ private:
 	uint64_t counters[256];
 	double startTime;
 
-	bool useGpu;
 	bool endOfSearch;
 	int nbGPUThread;
 	int nbFoundKey;
@@ -85,11 +84,6 @@ private:
 	Int rangeDiff;
 	Int rangeDiff2;
 
-	uint32_t maxFound;
-
-
-
-	pthread_mutex_t  ghMutex;
 };
 
 #endif // KEYHUNTH

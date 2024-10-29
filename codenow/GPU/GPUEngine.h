@@ -32,7 +32,7 @@ class GPUEngine
 
 public:
 
-	GPUEngine(Secp256K1* secp, int nbThreadGroup, int nbThreadPerGroup, int gpuId, uint32_t maxFound, 
+	GPUEngine(Secp256K1* secp, int nbThreadGroup, int nbThreadPerGroup, int gpuId, 
 		const uint32_t* hashORxpoint);
 
 	~GPUEngine();
@@ -75,7 +75,6 @@ private:
 	bool initialised;
 	bool littleEndian;
 
-	uint32_t maxFound;
 	uint32_t outputSize;
 
 	uint8_t* DATA;

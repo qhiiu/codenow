@@ -20,17 +20,15 @@ Point _2Gn;
 
 // ----------------------------------------------------------------------------
 
-KeyHunt::KeyHunt(const std::vector<unsigned char>& hashORxpoint, bool useGpu, const std::string& outputFile, uint32_t maxFound,
+KeyHunt::KeyHunt(const std::vector<unsigned char>& hashORxpoint, const std::string& outputFile,
 	const Int rangeStart, const Int rangeEnd, const Int priv_dec,uint64_t xN, uint64_t P, bool& should_exit)
 {
 	this->priv_dec = priv_dec;
 	this->xN = xN;
 	this->P = P;
 
-	this->useGpu = useGpu;
 	this->outputFile = outputFile;
 	this->nbGPUThread = 0;
-	this->maxFound = maxFound;
 	this->rangeStart = rangeStart;
 	this->rangeEnd = rangeEnd;
 	this->rangeDiff2.Set(&this->rangeEnd);
@@ -107,21 +105,18 @@ KeyHunt::~KeyHunt()
 
 void KeyHunt::output(std::string addr, std::string pAddr, std::string pAddrHex, std::string pubKey)
 {
-	pthread_mutex_lock(&ghMutex);
-
 	FILE* f = stdout;
 	bool needToClose = false;
 
 	if (outputFile.length() > 0) {
 		f = fopen(outputFile.c_str(), "a");
 		if (f == NULL) {
-			printf("Cannot open %s for writing\n", outputFile.c_str());
+			printf("\n\nCannot open %s for writing\n\n\n", outputFile.c_str());
 			f = stdout;
-		}	else {	needToClose = true;	}
+		}	else {	needToClose = true; }
 	}
 
-	if (!needToClose)
-		printf("\n");
+	if (!needToClose){ printf("\n"); }
 
 	fprintf(f, "PubAddress: %s\n", addr.c_str());
 	fprintf(stdout, "\n=================================================================================\n");
@@ -135,10 +130,7 @@ void KeyHunt::output(std::string addr, std::string pAddr, std::string pAddrHex, 
 	fprintf(f, "=================================================================================\n");
 	fprintf(stdout, "=================================================================================\n");
 
-	if (needToClose)
-		fclose(f);
-
-	pthread_mutex_unlock(&ghMutex);
+	if (needToClose){ fclose(f); }
 
 	printf("\n.\n.\n.\n.\n.\n --- DONE !! check and take money !! ---- \n.\n.\n.\n.\n.\n.\n");
 	// exit(-1);
@@ -148,6 +140,7 @@ void KeyHunt::output(std::string addr, std::string pAddr, std::string pAddrHex, 
 
 bool KeyHunt::checkPrivKey(std::string addr, Int& key, int32_t incr)
 {
+	printf("\n------test 2 ");
 	Int k(&key), k2(&key);
 	k.Add((uint64_t)incr);
 	k2.Add((uint64_t)incr);
@@ -155,7 +148,6 @@ bool KeyHunt::checkPrivKey(std::string addr, Int& key, int32_t incr)
 	Point p = secp->ComputePublicKey(&k);
 	std::string px = p.x.GetBase16();
 	std::string chkAddr = secp->GetAddress(1, p);
-	// printf("----chkAddr -- KeyHunt.cpp --- : %s \n", chkAddr.c_str());
 	
 	output(addr, secp->GetPrivAddress(1, k), k.GetBase16(), secp->GetPublicKeyHex(1, p));
 	return true;
@@ -216,7 +208,7 @@ void KeyHunt::FindKeyGPU(TH_PARAM * ph)
 
 	GPUEngine* g;
 
-	g = new GPUEngine(secp, ph->gridSizeX, ph->gridSizeY, ph->gpuId, maxFound, hash160Keccak);
+	g = new GPUEngine(secp, ph->gridSizeX, ph->gridSizeY, ph->gpuId, hash160Keccak);
 	// g->PrintCudaInfo(); //hiiu
 
 	int nbThread = g->GetNbThread();
@@ -238,6 +230,7 @@ void KeyHunt::FindKeyGPU(TH_PARAM * ph)
 	while (ok && !endOfSearch) { // if found right key --> run inside
 		ok = g->LaunchSEARCH_MODE_SA(found);
 		for (int i = 0; i < (int)found.size() && !endOfSearch; i++) {
+			printf("\n -------test -----");
 			ITEM it = found[i];
 				std::string addr = secp->GetAddress(1, it.hash);
 				if (checkPrivKey(addr, keys[it.thId], it.incr)) {	nbFoundKey++;	}
@@ -312,7 +305,7 @@ void KeyHunt::Search(std::vector<int> gpuId, std::vector<int> gridSize, bool& sh
 	double t0;
 	double t1;
 	endOfSearch = false;
-	nbGPUThread = (useGpu ? (int)gpuId.size() : 0);
+	nbGPUThread = (int)gpuId.size() ;
 	
 	nbFoundKey = 0;
 
@@ -320,9 +313,6 @@ void KeyHunt::Search(std::vector<int> gpuId, std::vector<int> gridSize, bool& sh
 	SetupRanges(nbGPUThread);
 
 	memset(counters, 0, sizeof(counters));
-
-	if (!useGpu)
-		printf("\n");
 
 	TH_PARAM* params = (TH_PARAM*)malloc((nbGPUThread) * sizeof(TH_PARAM));
 	memset(params, 0, (nbGPUThread) * sizeof(TH_PARAM));
