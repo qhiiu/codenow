@@ -2761,17 +2761,11 @@ void read_file(){
         while (getline(file_data, addr)) {
             std::string firstLetter_addr(1, addr[0]);
 
-            if (firstLetter_addr == "1") {
-                n_P2PKH++; 
-            } 
+            if (firstLetter_addr == "1") { n_P2PKH++; } 
 			
-			if (firstLetter_addr == "3") {
-                n_P2SH++; 
-            } 
+			if (firstLetter_addr == "3") { n_P2SH++; } 
 			
-			if (firstLetter_addr == "b") {
-                n_BECH32++; 
-            }
+			if (firstLetter_addr == "b") { n_BECH32++; }
 
         }   
         file_data.close();
@@ -2811,9 +2805,10 @@ void read_file(){
             std::string firstLetter_addrLine(1, addrLine[0]);
 			// std::cout << "\n====== letter : " << firstLetter_addrLine << "\n" ;
 
+
+			//----------------------------------------------
             if (firstLetter_addrLine == "1") {
 
-				// uint32_t gen_hash160[5];
 				hiiu_decodeBase58(addrLine, gen_hash160);
 				// print
 				for (int i = 0; i < 5; i++){	printf("\n ==> gen_hash160[%d] : %d ",i , gen_hash160[i]); };
@@ -2825,12 +2820,11 @@ void read_file(){
 				arrData_P2PKH[5 * n_P2PKH + 5] = gen_hash160[4];
 
 				n_P2PKH++;
-
             } 
-			
+
+			//----------------------------------------------
 			if (firstLetter_addrLine == "3") {
 
-				// uint32_t gen_hash160[5];
 				hiiu_decodeBase58(addrLine, gen_hash160);	
 				//print			
 				for (int i = 0; i < 5; i++){	printf("\n ==> gen_hash160[%d] : %d ",i , gen_hash160[i]); };
@@ -2843,7 +2837,8 @@ void read_file(){
 
 				n_P2SH++;
             } 
-			
+
+			//----------------------------------------------
 			if (firstLetter_addrLine == "b") {
 				
 				// uint32_t gen_hash160[5];
@@ -2911,8 +2906,8 @@ int main()
 
 	printf("\n\n\n\n\n\n\n\n\n\n\n");
 
-	m();
-	printf("\n\n\n\n\n");
+	// m();
+	// printf("\n\n\n\n\n");
 
     return 0;
 }
