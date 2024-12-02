@@ -48,8 +48,13 @@ private:
 	int nbThread;
 	int nbThreadPerGroup;
 
-	uint32_t* input_hash160_target_GPU;
-	uint32_t* input_hash160_target_GPU_pinned;
+	uint32_t* input_arrData_P2PKH_GPU;
+	uint32_t* input_arrData_P2SH_GPU;
+	uint32_t* input_arrData_BECH32_GPU;
+
+	uint32_t* input_arrData_P2PKH_GPU_pinned;
+	uint32_t* input_arrData_P2SH_GPU_pinned;
+	uint32_t* input_arrData_BECH32_GPU_pinned;
 
 	uint64_t* inputKey;
 	uint64_t* inputKeyPinned;

@@ -30,37 +30,148 @@ __device__ uint64_t* Gy = NULL;
 
 // ---------------------------------------------------------------------------------------
 
-__device__ __noinline__ void Check__Hash(uint64_t* px, uint64_t* py, int32_t incr, uint32_t* __hash160_target, uint32_t* out_found)
+__device__ __noinline__ void Check__Hash(uint64_t* px, uint64_t* py, int32_t incr, uint32_t* out_found, uint32_t* __input_arrData_P2PKH_GPU, uint32_t* __input_arrData_P2SH_GPU, uint32_t* __input_arrData_BECH32_GPU)
 {	
-	uint8_t isOdd = py[0] & 1; // 
-	uint32_t _h[5];  
 
-	_GetHash160Comp(px, isOdd, (uint8_t*)_h); 
+	// uint8_t isOdd = py[0] & 1; // 
+	// uint32_t _h[5];  
+	// _GetHash160Comp(px, isOdd, (uint8_t*)_h); 
 
-	if(_h[0] == __hash160_target[0]) {
-		if(_h[1] == __hash160_target[1]){
-			if(_h[2] == __hash160_target[2]){
-				if(_h[3] == __hash160_target[3]){
-					if(_h[4] == __hash160_target[4]){			
+	uint8_t isOdd = py[0] & 1; 
+	uint32_t _hash160_P2PKHc_and_BECH32[5];
+	uint32_t _hash160_P2SH[5];
+	// uint32_t _hash160_P2PKHu[5]; // diff pubKey and diff hash160 // handle later
 
-						uint32_t tid = (blockIdx.x * blockDim.x) + threadIdx.x;			
+	// gen hash160 P2PKHc + BECH32 from px,py
+	_GetHash160Comp(px, isOdd, (uint8_t*)_hash160_P2PKHc_and_BECH32); 
 
-						atomicAdd(out_found, 1);
-						out_found[1] = tid;
-						out_found[2] = (uint32_t)(incr << 16);
-						out_found[3] = _h[0];
-						out_found[4] = _h[1];
-						out_found[5] = _h[2];
-						out_found[6] = _h[3]; 
-						out_found[7] = _h[4];	
+	// gen hash160 P2PSH from px,py
+	_GetHash160P2SHComp(px, isOdd, (uint8_t*)_hash160_P2SH); 
 
+
+
+	// ---------- so sánh từng h[5] với arrData -------------- 
+	// =============== P2PKHc ===============
+	uint32_t n_P2PKH = __input_arrData_P2PKH_GPU[0];
+	
+	for (uint32_t i = 0; i < n_P2PKH; i++)
+	{
+		// compare list_hash160_target in arrData
+		if(_hash160_P2PKHc_and_BECH32[0] == __input_arrData_P2PKH_GPU[5 * i + 1]) {
+			if(_hash160_P2PKHc_and_BECH32[1] == __input_arrData_P2PKH_GPU[5 * i + 2]){
+				if(_hash160_P2PKHc_and_BECH32[2] == __input_arrData_P2PKH_GPU[5 * i + 3]){
+					if(_hash160_P2PKHc_and_BECH32[3] == __input_arrData_P2PKH_GPU[5 * i + 4]){
+						if(_hash160_P2PKHc_and_BECH32[4] == __input_arrData_P2PKH_GPU[5 * i + 5]){			
+
+							uint32_t tid = (blockIdx.x * blockDim.x) + threadIdx.x;			
+
+							atomicAdd(out_found, 1);
+							out_found[1] = tid;
+							out_found[2] = (uint32_t)(incr << 16);
+							out_found[3] = _hash160_P2PKHc_and_BECH32[0];
+							out_found[4] = _hash160_P2PKHc_and_BECH32[1];
+							out_found[5] = _hash160_P2PKHc_and_BECH32[2];
+							out_found[6] = _hash160_P2PKHc_and_BECH32[3]; 
+							out_found[7] = _hash160_P2PKHc_and_BECH32[4];	
+
+						}	
 					}	
 				}	
-			}	
+			}
 		}
 	}
+	
+	// P2PKHu ????????????????????????????????
+	// =============== P2SH ===============
+	uint32_t n_P2SH = __input_arrData_P2SH_GPU[0];
+	
+	for (uint32_t i = 0; i < n_P2SH; i++)
+	{
+		// compare list_hash160_target in arrData
+		if(_hash160_P2SH[0] == __input_arrData_P2SH_GPU[5 * i + 1]) {
+			if(_hash160_P2SH[1] == __input_arrData_P2SH_GPU[5 * i + 2]){
+				if(_hash160_P2SH[2] == __input_arrData_P2SH_GPU[5 * i + 3]){
+					if(_hash160_P2SH[3] == __input_arrData_P2SH_GPU[5 * i + 4]){
+						if(_hash160_P2SH[4] == __input_arrData_P2SH_GPU[5 * i + 5]){			
+
+							uint32_t tid = (blockIdx.x * blockDim.x) + threadIdx.x;			
+
+							atomicAdd(out_found, 1);
+							out_found[1] = tid;
+							out_found[2] = (uint32_t)(incr << 16);
+							out_found[3] = _hash160_P2SH[0];
+							out_found[4] = _hash160_P2SH[1];
+							out_found[5] = _hash160_P2SH[2];
+							out_found[6] = _hash160_P2SH[3]; 
+							out_found[7] = _hash160_P2SH[4];	
+
+						}	
+					}	
+				}	
+			}
+		}
+	}
+
+
+
+	// =============== BECH32 = segwit ===============
+	uint32_t n_BECH32 = __input_arrData_BECH32_GPU[0];
+	
+	for (uint32_t i = 0; i < n_BECH32; i++)
+	{
+		// compare list_hash160_target in arrData
+		if(_hash160_P2PKHc_and_BECH32[0] == __input_arrData_BECH32_GPU[5 * i + 1]) {
+			if(_hash160_P2PKHc_and_BECH32[1] == __input_arrData_BECH32_GPU[5 * i + 2]){
+				if(_hash160_P2PKHc_and_BECH32[2] == __input_arrData_BECH32_GPU[5 * i + 3]){
+					if(_hash160_P2PKHc_and_BECH32[3] == __input_arrData_BECH32_GPU[5 * i + 4]){
+						if(_hash160_P2PKHc_and_BECH32[4] == __input_arrData_BECH32_GPU[5 * i + 5]){			
+
+							uint32_t tid = (blockIdx.x * blockDim.x) + threadIdx.x;			
+
+							atomicAdd(out_found, 1);
+							out_found[1] = tid;
+							out_found[2] = (uint32_t)(incr << 16);
+							out_found[3] = _hash160_P2PKHc_and_BECH32[0];
+							out_found[4] = _hash160_P2PKHc_and_BECH32[1];
+							out_found[5] = _hash160_P2PKHc_and_BECH32[2];
+							out_found[6] = _hash160_P2PKHc_and_BECH32[3]; 
+							out_found[7] = _hash160_P2PKHc_and_BECH32[4];	
+
+						}	
+					}	
+				}	
+			}
+		}
+	}
+	
+
+
+
+
+	// if(_h[0] == __hash160_target[0]) {
+	// 	if(_h[1] == __hash160_target[1]){
+	// 		if(_h[2] == __hash160_target[2]){
+	// 			if(_h[3] == __hash160_target[3]){
+	// 				if(_h[4] == __hash160_target[4]){			
+
+	// 					uint32_t tid = (blockIdx.x * blockDim.x) + threadIdx.x;			
+
+	// 					atomicAdd(out_found, 1);
+	// 					out_found[1] = tid;
+	// 					out_found[2] = (uint32_t)(incr << 16);
+	// 					out_found[3] = _h[0];
+	// 					out_found[4] = _h[1];
+	// 					out_found[5] = _h[2];
+	// 					out_found[6] = _h[3]; 
+	// 					out_found[7] = _h[4];	
+
+	// 				}	
+	// 			}	
+	// 		}	
+	// 	}
+	// }
 }
-#define CHECK__HASH(incr) Check__Hash(px, py, incr, __hash160_target, out_found)
+#define CHECK__HASH(incr) Check__Hash(px, py, incr, out_found, __input_arrData_P2PKH_GPU, __input_arrData_P2SH_GPU, __input_arrData_BECH32_GPU)
 
 
 // GPUEngine.cu  
@@ -77,7 +188,8 @@ inline void __cudaSafeCall(cudaError err, const char* file, const int line)
 } 
 // ---------------------------------------------------------------------------------------
 
-__global__ void compute_keys_comp_mode_sa(uint32_t* __hash160_target, uint64_t* __inputKey, uint32_t* out_found)
+// __global__ void compute_keys_comp_mode_sa(uint32_t* __hash160_target, uint64_t* __inputKey, uint32_t* out_found)
+__global__ void compute_keys_comp_mode_sa(uint32_t* __input_arrData_P2PKH_GPU, uint32_t* __input_arrData_P2SH_GPU, uint32_t* __input_arrData_BECH32_GPU, uint64_t* __inputKey, uint32_t* out_found)
 {
 			// blockDim.x = 128 // blockIdx.x = 0-> 48 
 			// xPtr-yPtr = 0-512     // xPtr-yPtr = 1024-1536
@@ -251,7 +363,6 @@ int _ConvertSMVer2Cores(int major, int minor)
 
 GPUEngine::GPUEngine(Secp256K1* secp, int nbThreadGroup, int nbThreadPerGroup, int gpuId, 
 						const uint32_t* arrData_P2PKH_GPU, const uint32_t* arrData_P2SH_GPU, const uint32_t* arrData_BECH32_GPU)
-//------------ codenow here -- 5:40 pm -- 30/11/2024
 {  
 	// Initialise CUDA
 	this->nbThreadPerGroup = nbThreadPerGroup;
@@ -497,20 +608,22 @@ int GPUEngine::GetNbThread()
 
 bool GPUEngine::SetKeys(Point* p) //p ở đây có dạng (x=, y= , z=1)
 {
-
+	uint64_t thread_id;
 	for (int i = 0; i < (nbThread/nbThreadPerGroup); i++) { //nbThread = 6144 -- nbThreadPerGroup = 128 
 
 		for (int j = 0; j < nbThreadPerGroup; j++) {
+			
+			thread_id = i*nbThreadPerGroup + j;
+			
+			inputKeyPinned[thread_id * 8 + 0] = p[thread_id].x.bits64[0];
+			inputKeyPinned[thread_id * 8 + 1] = p[thread_id].x.bits64[1];
+			inputKeyPinned[thread_id * 8 + 2] = p[thread_id].x.bits64[2];
+			inputKeyPinned[thread_id * 8 + 3] = p[thread_id].x.bits64[3];
 
-			inputKeyPinned[(i*nbThreadPerGroup + j) * 8 + 0] = p[i*nbThreadPerGroup + j].x.bits64[0];
-			inputKeyPinned[(i*nbThreadPerGroup + j) * 8 + 1] = p[i*nbThreadPerGroup + j].x.bits64[1];
-			inputKeyPinned[(i*nbThreadPerGroup + j) * 8 + 2] = p[i*nbThreadPerGroup + j].x.bits64[2];
-			inputKeyPinned[(i*nbThreadPerGroup + j) * 8 + 3] = p[i*nbThreadPerGroup + j].x.bits64[3];
-
-			inputKeyPinned[(i*nbThreadPerGroup + j) * 8 + 4] = p[i*nbThreadPerGroup + j].y.bits64[0];
-			inputKeyPinned[(i*nbThreadPerGroup + j) * 8 + 5] = p[i*nbThreadPerGroup + j].y.bits64[1];
-			inputKeyPinned[(i*nbThreadPerGroup + j) * 8 + 6] = p[i*nbThreadPerGroup + j].y.bits64[2];
-			inputKeyPinned[(i*nbThreadPerGroup + j) * 8 + 7] = p[i*nbThreadPerGroup + j].y.bits64[3];
+			inputKeyPinned[thread_id * 8 + 4] = p[thread_id].y.bits64[0];
+			inputKeyPinned[thread_id * 8 + 5] = p[thread_id].y.bits64[1];
+			inputKeyPinned[thread_id * 8 + 6] = p[thread_id].y.bits64[2];
+			inputKeyPinned[thread_id * 8 + 7] = p[thread_id].y.bits64[3];
   		}
 	}
 
@@ -522,7 +635,8 @@ bool GPUEngine::SetKeys(Point* p) //p ở đây có dạng (x=, y= , z=1)
 
 	CudaSafeCall(cudaMemset(outputBuffer, 0, 4));
 
-	compute_keys_comp_mode_sa <<< nbThread / nbThreadPerGroup, nbThreadPerGroup >>>(input_hash160_target_GPU, inputKey, outputBuffer);
+	// compute_keys_comp_mode_sa <<< nbThread / nbThreadPerGroup, nbThreadPerGroup >>>(input_hash160_target_GPU, inputKey, outputBuffer);
+	compute_keys_comp_mode_sa <<< nbThread / nbThreadPerGroup, nbThreadPerGroup >>>(input_arrData_P2PKH_GPU, input_arrData_P2SH_GPU, input_arrData_BECH32_GPU, inputKey, outputBuffer);
 	return true;
 }
 
@@ -564,7 +678,8 @@ bool GPUEngine::LaunchSEARCH_MODE_SA(std::vector<ITEM>& dataFound)
 	   
 	CudaSafeCall(cudaMemset(outputBuffer, 0, 4));
 
-	compute_keys_comp_mode_sa <<< nbThread / nbThreadPerGroup, nbThreadPerGroup >>>(input_hash160_target_GPU, inputKey, outputBuffer);
+	// compute_keys_comp_mode_sa <<< nbThread / nbThreadPerGroup, nbThreadPerGroup >>>(input_hash160_target_GPU, inputKey, outputBuffer);
+	compute_keys_comp_mode_sa <<< nbThread / nbThreadPerGroup, nbThreadPerGroup >>>(input_arrData_P2PKH_GPU, input_arrData_P2SH_GPU, input_arrData_BECH32_GPU, inputKey, outputBuffer);
 
 	return true;
 }
