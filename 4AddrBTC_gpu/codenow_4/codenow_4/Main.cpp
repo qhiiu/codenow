@@ -40,7 +40,7 @@ void check_file_exist(){
 uint64_t check_data(std::string priv)
 {
     std::string fileName;
-    fileName = "x.txt";
+    fileName = "xData.txt";
 
     ifstream file(fileName);
     string line;
@@ -90,7 +90,7 @@ void init_value(int mode, uint64_t xN,Int& privDec, Int& rangeStart, Int& rangeE
                 }
             }
 
-            break;
+            // break;
 
         // set _10B
         Int _10B, _xN10B;
@@ -107,66 +107,17 @@ void init_value(int mode, uint64_t xN,Int& privDec, Int& rangeStart, Int& rangeE
         rangeEnd = rangeStart;
         rangeEnd.Add(&_xN10B);
 
-
-        // print info
-        std::cout << "\nRANGE START : " << list_range_dec[P];
-        std::cout << "\nRANGE END   : " << list_range_dec[P+1] << "\n";
-
         //print privDec info 
         uint64_t nChecked = 0;
-        Int privDec_copy = privDec;
+        Int privDec_copy = privDec; 
         for (int i = 0; i < xN; i++){
             std::cout << "\nprivDec ======> " << privDec_copy.GetBase10(); //print 
             nChecked = check_data(privDec_copy.GetBase10()); // check priv
             privDec_copy.AddOne(); // increase priv 
         } 
-        std::cout << "\n\nnChecked : " << nChecked ;
+        std::cout << "\n\nnChecked : " << nChecked ; 
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -472,7 +423,7 @@ void trim(std::string &str) {
 }
 
 // Funtion to convert listAddr to array of data h[5]
-void listAddr_to_arrData(){
+void run(){
 
     check_file_exist(); // check file $.txt
 
@@ -503,12 +454,7 @@ void listAddr_to_arrData(){
 
 
 
-
-
-
-
-
-    //------------- listAddr -> arrData ----start--------------------
+    // =========================== listAddr -> arrData ----start ===========================
     ifstream file_data("hiiu_data_bitcoin.txt");
     string addr;
 
@@ -618,7 +564,7 @@ void listAddr_to_arrData(){
 
     } else {   std::cout << "Err file_data !!!" << std::endl;   }
 
-    //------------- listAddr -> arrData ----end--------------------
+    // =========================== listAddr -> arrData ---- end ===========================
 
 
 
@@ -674,30 +620,11 @@ void listAddr_to_arrData(){
 //---CODENOW - END --------------------------------------------------------------------
 //---CODENOW - END --------------------------------------------------------------------
 //---CODENOW - END --------------------------------------------------------------------
-//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
 int main(){
-    listAddr_to_arrData();
+    run();
     
 	return 0;
 };
