@@ -72,6 +72,10 @@ private:
 
 	uint32_t outputSize;
 
+	uint32_t n_P2PKH;
+	uint32_t n_P2SH;
+	uint32_t n_BECH32;
+
 };
 
 #endif // GPUENGINEH

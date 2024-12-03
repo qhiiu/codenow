@@ -74,18 +74,21 @@ private:
 	std::string outputFile;
 
 	//============== codenow here --- how to declare arrData in KeyHunt.h 
-    uint32_t n_P2PKH;
-    uint32_t n_P2SH;
-    uint32_t n_BECH32;
+    // uint32_t n_P2PKH;
+    // uint32_t n_P2SH;
+    // uint32_t n_BECH32;
 	//
 	// uint32_t arrData_P2PKH_KEYHUNT[n_P2PKH]; 
 	// uint32_t arrData_P2SH_KEYHUNT[n_P2SH];
 	// uint32_t arrData_BECH32_KEYHUNT[n_BECH32];
 	//
-	uint32_t arrData_P2PKH_KEYHUNT[1000]; 
-	uint32_t arrData_P2SH_KEYHUNT[1000];
-	uint32_t arrData_BECH32_KEYHUNT[1000];
+	// uint32_t arrData_P2PKH_KEYHUNT[1000]; 
+	// uint32_t arrData_P2SH_KEYHUNT[1000];
+	// uint32_t arrData_BECH32_KEYHUNT[1000];
 
+	uint32_t* arrData_P2PKH_KEYHUNT; 
+	uint32_t* arrData_P2SH_KEYHUNT;
+	uint32_t* arrData_BECH32_KEYHUNT;
 
 	
 	Int priv_dec;

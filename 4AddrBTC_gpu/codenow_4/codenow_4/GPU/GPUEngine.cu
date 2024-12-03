@@ -425,25 +425,25 @@ GPUEngine::GPUEngine(Secp256K1* secp, int nbThreadGroup, int nbThreadPerGroup, i
 
 
 	//----- codenow-4-------------------------------
-	int n_P2PKH = arrData_P2PKH_GPU[0];
-	int n_P2SH = arrData_P2SH_GPU[0];
-	int n_BECH32 = arrData_BECH32_GPU[0];
+	this->n_P2PKH = arrData_P2PKH_GPU[0];
+	this->n_P2SH = arrData_P2SH_GPU[0];
+	this->n_BECH32 = arrData_BECH32_GPU[0];
 
-	CudaSafeCall(cudaMalloc((void**)&input_arrData_P2PKH_GPU, n_P2PKH * sizeof(uint32_t)));
-	CudaSafeCall(cudaMalloc((void**)&input_arrData_P2SH_GPU, n_P2SH * sizeof(uint32_t)));
-	CudaSafeCall(cudaMalloc((void**)&input_arrData_BECH32_GPU, n_BECH32 * sizeof(uint32_t)));
+	CudaSafeCall(cudaMalloc((void**)&input_arrData_P2PKH_GPU, this->n_P2PKH * sizeof(uint32_t)));
+	CudaSafeCall(cudaMalloc((void**)&input_arrData_P2SH_GPU, this->n_P2SH * sizeof(uint32_t)));
+	CudaSafeCall(cudaMalloc((void**)&input_arrData_BECH32_GPU, this->n_BECH32 * sizeof(uint32_t)));
 
-	CudaSafeCall(cudaHostAlloc(&input_arrData_P2PKH_GPU_pinned, n_P2PKH * sizeof(uint32_t), cudaHostAllocWriteCombined | cudaHostAllocMapped));
-	CudaSafeCall(cudaHostAlloc(&input_arrData_P2SH_GPU_pinned, n_P2SH * sizeof(uint32_t), cudaHostAllocWriteCombined | cudaHostAllocMapped));
-	CudaSafeCall(cudaHostAlloc(&input_arrData_BECH32_GPU_pinned, n_BECH32 * sizeof(uint32_t), cudaHostAllocWriteCombined | cudaHostAllocMapped));
+	CudaSafeCall(cudaHostAlloc(&input_arrData_P2PKH_GPU_pinned, this->n_P2PKH * sizeof(uint32_t), cudaHostAllocWriteCombined | cudaHostAllocMapped));
+	CudaSafeCall(cudaHostAlloc(&input_arrData_P2SH_GPU_pinned, this->n_P2SH * sizeof(uint32_t), cudaHostAllocWriteCombined | cudaHostAllocMapped));
+	CudaSafeCall(cudaHostAlloc(&input_arrData_BECH32_GPU_pinned, this->n_BECH32 * sizeof(uint32_t), cudaHostAllocWriteCombined | cudaHostAllocMapped));
 
-	memcpy(input_arrData_P2PKH_GPU_pinned, arrData_P2PKH_GPU, n_P2PKH * sizeof(uint32_t));
-	memcpy(input_arrData_P2SH_GPU_pinned, arrData_P2SH_GPU, n_P2SH * sizeof(uint32_t));
-	memcpy(input_arrData_BECH32_GPU_pinned, arrData_BECH32_GPU, n_BECH32 * sizeof(uint32_t));
+	memcpy(input_arrData_P2PKH_GPU_pinned, arrData_P2PKH_GPU, this->n_P2PKH * sizeof(uint32_t));
+	memcpy(input_arrData_P2SH_GPU_pinned, arrData_P2SH_GPU, this->n_P2SH * sizeof(uint32_t));
+	memcpy(input_arrData_BECH32_GPU_pinned, arrData_BECH32_GPU, this->n_BECH32 * sizeof(uint32_t));
 
-	CudaSafeCall(cudaMemcpy(input_arrData_P2PKH_GPU, input_arrData_P2PKH_GPU_pinned, n_P2PKH * sizeof(uint32_t), cudaMemcpyHostToDevice));
-	CudaSafeCall(cudaMemcpy(input_arrData_P2SH_GPU, input_arrData_P2SH_GPU_pinned, n_P2SH * sizeof(uint32_t), cudaMemcpyHostToDevice));
-	CudaSafeCall(cudaMemcpy(input_arrData_BECH32_GPU, input_arrData_BECH32_GPU_pinned, n_BECH32 * sizeof(uint32_t), cudaMemcpyHostToDevice));
+	CudaSafeCall(cudaMemcpy(input_arrData_P2PKH_GPU, input_arrData_P2PKH_GPU_pinned, this->n_P2PKH * sizeof(uint32_t), cudaMemcpyHostToDevice));
+	CudaSafeCall(cudaMemcpy(input_arrData_P2SH_GPU, input_arrData_P2SH_GPU_pinned, this->n_P2SH * sizeof(uint32_t), cudaMemcpyHostToDevice));
+	CudaSafeCall(cudaMemcpy(input_arrData_BECH32_GPU, input_arrData_BECH32_GPU_pinned, this->n_BECH32 * sizeof(uint32_t), cudaMemcpyHostToDevice));
 	
 	CudaSafeCall(cudaFreeHost(input_arrData_P2PKH_GPU_pinned));
 	CudaSafeCall(cudaFreeHost(input_arrData_P2SH_GPU_pinned));

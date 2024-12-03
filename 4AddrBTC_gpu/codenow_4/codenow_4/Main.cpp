@@ -61,71 +61,7 @@ uint64_t check_data(std::string priv)
     }
 	return n;
 }
-//-----------------------------------------------------------------------
-void init_value(int mode, uint64_t xN,Int& privDec, Int& rangeStart, Int& rangeEnd)
-{
-    Int MINN, MAXX;
-    MINN.SetBase10("0");
-    // MAXX.SetBase10("115792089237316195423570985008687907852837564279074904382605163141518161494336"); // full
-    MAXX.SetBase10("11579208923731619542357098500868790785283756427907490438260516314151"); // remove 10th-end
-    
-    switch (mode){
-        case RANDOM:
-            privDec.Rand(&MAXX);
-            break;
 
-        case INPUT:
-            std::cout << "\nRANGE__INPUT : "<< MINN.GetBase10() << " - " << MAXX.GetBase10();
-            char* input_privDec = new char[64];
-
-            while (true) 
-            {
-                std::cout << "\ninput__privDec : "; 
-                cin.getline(input_privDec, 64);
-
-                privDec.SetBase10(input_privDec);     
-
-                if (privDec.IsGreaterOrEqual(&MINN) && privDec.IsLowerOrEqual(&MAXX)){ 
-                    break; 
-                }
-            }
-
-            // break;
-
-        // set _10B
-        Int _10B, _xN10B;
-        _10B.SetBase10("10000000000"); 
-        // set xN10B = _10B then multiple to xN
-        _xN10B = _10B;
-        _xN10B.Mult(xN); 
-
-
-        //set --- rangeStart
-        rangeStart = privDec; 
-        rangeStart.Mult(&_10B);
-        //set --- rangEnd
-        rangeEnd = rangeStart;
-        rangeEnd.Add(&_xN10B);
-
-        //print privDec info 
-        uint64_t nChecked = 0;
-        Int privDec_copy = privDec; 
-        for (int i = 0; i < xN; i++){
-            std::cout << "\nprivDec ======> " << privDec_copy.GetBase10(); //print 
-            nChecked = check_data(privDec_copy.GetBase10()); // check priv
-            privDec_copy.AddOne(); // increase priv 
-        } 
-        std::cout << "\n\nnChecked : " << nChecked ; 
-    }
-}
-
-
-
-
-
-
-
-//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 //---CODENOW - START  --------------------------------------------------------------------
@@ -415,6 +351,99 @@ void hiiu_decodeBase58(std::string address, uint32_t* _hash160){
 	memcpy(_hash160 , hash160Keccak , 20);
 }
 
+
+
+
+
+//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
+void init_value(int mode, uint64_t xN,Int& privDec, Int& rangeStart, Int& rangeEnd)
+{
+    Int MINN, MAXX;
+    MINN.SetBase10("0");
+    // MAXX.SetBase16("fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364140"); // full
+    MAXX.SetBase10("11579208923731619542357098500868790785283756427907490438260516314151"); // remove 10th-end
+    // std::cout << std::endl << "MAXX-10 : " << MAXX.GetBase10();
+    // std::cout << std::endl << "MAXX-16 : " <<  MAXX.GetBase16();
+
+    // ---------- codenow here - err to set MAXX ------ fix
+    switch (mode){
+        case RANDOM:
+            privDec.Rand(&MAXX);
+            std::cout << std::endl << "privDec-10 : " << privDec.GetBase10();
+            std::cout << std::endl << "privDec-16 : " << privDec.GetBase16();
+            break;
+
+        case INPUT:
+            std::cout << "\nRANGE__INPUT : "<< MINN.GetBase10() << " - " << MAXX.GetBase10();
+            char* input_privDec = new char[64];
+
+            while (true) 
+            {
+                std::cout << "\ninput__privDec : "; 
+                cin.getline(input_privDec, 64);
+
+                privDec.SetBase10(input_privDec);     
+
+                if (privDec.IsGreaterOrEqual(&MINN) && privDec.IsLowerOrEqual(&MAXX)){ 
+                    break; 
+                }
+            }
+
+            // break;
+        }
+
+        // set _10B
+        Int _10B, _xN10B;
+        _10B.SetBase10("10000000000"); 
+        // set xN10B = _10B then multiple to xN
+        _xN10B = _10B;
+        _xN10B.Mult(xN); 
+
+
+        //set --- rangeStart
+        rangeStart = privDec; 
+        rangeStart.Mult(&_10B);
+        std::cout << std::endl << "rangeStart-10 :  " << rangeStart.GetBase10();
+        std::cout << std::endl << "rangeStart-16 :  " << rangeStart.GetBase16() << std::endl;
+
+        //set --- rangEnd
+        rangeEnd = rangeStart;
+        rangeEnd.Add(&_xN10B);
+        std::cout << std::endl << "rangeEnd-10 :    " << rangeEnd.GetBase10();
+        std::cout << std::endl << "rangeEnd-16 :    " << rangeEnd.GetBase16() << std::endl;
+
+        //print privDec info 
+        uint64_t nChecked = 0;
+        Int privDec_copy = privDec; 
+        for (int i = 0; i < xN; i++){
+            std::cout << "\nprivDec ======> " << privDec_copy.GetBase10(); //print 
+            nChecked = check_data(privDec_copy.GetBase10()); // check priv
+            privDec_copy.AddOne(); // increase priv 
+        } 
+        std::cout << "\n\nnChecked : " << nChecked ; 
+    
+}
+
+//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
+
+
 //---CODENOW - START  --------------------------------------------------------------------
 // Function to trim leading and trailing spaces and newlines
 void trim(std::string &str) {
@@ -440,17 +469,12 @@ void run(){
 	Int privDec, rangeStart, rangeEnd;
 
     //set value
-    int xN = 10;
+    int xN = 1;
     int mode = RANDOM;
     init_value(mode, xN, privDec, rangeStart, rangeEnd);
 
 	std::string outputFile = "$.txt";
     std::cout << "\n\nOUTPUT FILE  : " << outputFile;
-
-
-
-
-
 
 
 

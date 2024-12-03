@@ -45,26 +45,31 @@ KeyHunt::KeyHunt(uint32_t* arrData_P2PKH, uint32_t* arrData_P2SH, uint32_t* arrD
 	// }
 
     // store number tpye of addr 
-    this->n_P2PKH = arrData_P2PKH[0];
-    this->n_P2SH = arrData_P2SH[0];
-    this->n_BECH32 = arrData_BECH32[0];
+    // this->n_P2PKH = arrData_P2PKH[0];
+    // this->n_P2SH = arrData_P2SH[0];
+    // this->n_BECH32 = arrData_BECH32[0];
 
 	//
 	// this->arrData_P2PKH_KEYHUNT[n_P2PKH];
 	// this->arrData_P2SH_KEYHUNT[n_P2SH];
 	// this->arrData_BECH32_KEYHUNT[n_BECH32];
 
-	for (size_t i = 0; i < n_P2PKH; i++){
-		this->arrData_P2PKH_KEYHUNT[i] = arrData_P2PKH[i];
-	}
+	// for (size_t i = 0; i < n_P2PKH; i++){
+	// 	this->arrData_P2PKH_KEYHUNT[i] = arrData_P2PKH[i];
+	// }
 
-	for (size_t i = 0; i < n_P2SH; i++){
-		this->arrData_P2SH_KEYHUNT[i] = arrData_P2SH[i];
-	}
+	// for (size_t i = 0; i < n_P2SH; i++){
+	// 	this->arrData_P2SH_KEYHUNT[i] = arrData_P2SH[i];
+	// }
 
-	for (size_t i = 0; i < n_BECH32; i++){
-		this->arrData_BECH32_KEYHUNT[i] = arrData_BECH32[i];
-	}
+	// for (size_t i = 0; i < n_BECH32; i++){
+	// 	this->arrData_BECH32_KEYHUNT[i] = arrData_BECH32[i];
+	// }
+
+	this->arrData_P2PKH_KEYHUNT = arrData_P2PKH;
+	this->arrData_P2SH_KEYHUNT = arrData_P2SH;
+	this->arrData_BECH32_KEYHUNT = arrData_BECH32;
+
 
 	printf("\n");
 
@@ -239,8 +244,6 @@ void KeyHunt::FindKeyGPU(TH_PARAM * ph)
 	// g = new GPUEngine(secp, ph->gridSizeX, ph->gridSizeY, ph->gpuId, hash160_target_KEYHUNT); 
 	g = new GPUEngine(secp, ph->gridSizeX, ph->gridSizeY, ph->gpuId, 
 						arrData_P2PKH_KEYHUNT, arrData_P2SH_KEYHUNT, arrData_BECH32_KEYHUNT); 
-	
-	
 	
 	// g->PrintCudaInfo(); //hiiu
 
