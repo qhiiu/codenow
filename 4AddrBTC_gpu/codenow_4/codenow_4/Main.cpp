@@ -591,13 +591,6 @@ void run(){
     // =========================== listAddr -> arrData ---- end ===========================
 
 
-
-
-
-
-
-
-
     if (gridSize.size() == 0) {
         for (int i = 0; i < gpuId.size(); i++) {
             gridSize.push_back(-1);
