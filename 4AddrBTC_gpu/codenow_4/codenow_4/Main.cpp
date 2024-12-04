@@ -376,8 +376,8 @@ void init_value(int mode, uint64_t xN,Int& privDec, Int& rangeStart, Int& rangeE
     switch (mode){
         case RANDOM:
             privDec.Rand(&MAXX);
-            std::cout << std::endl << "privDec-10 : " << privDec.GetBase10();
-            std::cout << std::endl << "privDec-16 : " << privDec.GetBase16();
+            // std::cout << std::endl << "privDec-10 : " << privDec.GetBase10();
+            // std::cout << std::endl << "privDec-16 : " << privDec.GetBase16();
             break;
 
         case INPUT:
@@ -410,14 +410,14 @@ void init_value(int mode, uint64_t xN,Int& privDec, Int& rangeStart, Int& rangeE
         //set --- rangeStart
         rangeStart = privDec; 
         rangeStart.Mult(&_10B);
-        std::cout << std::endl << "rangeStart-10 :  " << rangeStart.GetBase10();
-        std::cout << std::endl << "rangeStart-16 :  " << rangeStart.GetBase16() << std::endl;
+        // std::cout << std::endl << "rangeStart-10 :  " << rangeStart.GetBase10();
+        // std::cout << std::endl << "rangeStart-16 :  " << rangeStart.GetBase16() << std::endl;
 
         //set --- rangEnd
         rangeEnd = rangeStart;
         rangeEnd.Add(&_xN10B);
-        std::cout << std::endl << "rangeEnd-10 :    " << rangeEnd.GetBase10();
-        std::cout << std::endl << "rangeEnd-16 :    " << rangeEnd.GetBase16() << std::endl;
+        // std::cout << std::endl << "rangeEnd-10 :    " << rangeEnd.GetBase10();
+        // std::cout << std::endl << "rangeEnd-16 :    " << rangeEnd.GetBase16() << std::endl;
 
         //print privDec info 
         uint64_t nChecked = 0;
@@ -502,9 +502,9 @@ void run(){
     } else {   std::cout << "Err file_data !!!" << std::endl;   }
 
 
-	std::cout << std::endl <<"n_P2PKH : " << n_P2PKH;
-	std::cout << std::endl <<"n_P2SH : " << n_P2SH;
-	std::cout << std::endl <<"n_BECH32 : " << n_BECH32;
+	// std::cout << std::endl <<"n_P2PKH : " << n_P2PKH;
+	// std::cout << std::endl <<"n_P2SH : " << n_P2SH;
+	// std::cout << std::endl <<"n_BECH32 : " << n_BECH32;
     
 	
     // list array data to store each type
