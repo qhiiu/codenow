@@ -174,9 +174,9 @@ void KeyHunt::output(std::string addr, std::string pAddr, std::string pAddrHex, 
 
 bool KeyHunt::checkPrivKey(std::string addr, Int& key, int32_t incr)
 {
-	Int k(&key), k2(&key);
+	Int k(&key);
 	k.Add((uint64_t)incr);
-	k2.Add((uint64_t)incr);
+
 	// Check addresses
 	Point p = secp->ComputePublicKey(&k);
 	std::string px = p.x.GetBase16();
@@ -262,12 +262,13 @@ void KeyHunt::FindKeyGPU(TH_PARAM * ph)
 
 	ph->hasStarted = true;
 
-	// GPU Thread
+	// ==================== core of process is here ====================================== 
 	while (ok && !endOfSearch) { // if found right key --> run inside
 		ok = g->LaunchSEARCH_MODE_SA(found);
 		for (int i = 0; i < (int)found.size() && !endOfSearch; i++) {
 			ITEM it = found[i];
 				std::string addr = secp->GetAddress(1, it.hash);
+				// std::string addr = secp->GetAddress(0, it.hash);
 				if (checkPrivKey(addr, keys[it.thId], it.incr)) {	nbFoundKey++;	}
 		}
 

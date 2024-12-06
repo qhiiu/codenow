@@ -70,7 +70,9 @@ private:
 
 	bool initialised;
 
+	uint32_t maxFound;
 	uint32_t outputSize;
+
 
 	uint32_t n_P2PKH;
 	uint32_t n_P2SH;

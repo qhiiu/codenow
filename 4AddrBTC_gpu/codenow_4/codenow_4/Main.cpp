@@ -372,7 +372,6 @@ void init_value(int mode, uint64_t xN,Int& privDec, Int& rangeStart, Int& rangeE
     // std::cout << std::endl << "MAXX-10 : " << MAXX.GetBase10();
     // std::cout << std::endl << "MAXX-16 : " <<  MAXX.GetBase16();
 
-    // ---------- codenow here - err to set MAXX ------ fix
     switch (mode){
         case RANDOM:
             privDec.Rand(&MAXX);
@@ -424,10 +423,27 @@ void init_value(int mode, uint64_t xN,Int& privDec, Int& rangeStart, Int& rangeE
         Int privDec_copy = privDec; 
         for (int i = 0; i < xN; i++){
             std::cout << "\nprivDec ======> " << privDec_copy.GetBase10(); //print 
-            nChecked = check_data(privDec_copy.GetBase10()); // check priv
+            nChecked = check_data(privDec_copy.GetBase10()); // check priv 
             privDec_copy.AddOne(); // increase priv 
         } 
         std::cout << "\n\nnChecked : " << nChecked ; 
+
+
+        //================= TEST-start ==================================================
+ 
+        //13zb1hQbWVsc2S7ZTZnP2G4undNNpdh5so 
+        //2832ed74f2b5e35ee 
+        // rangeStart.SetBase16("2832ed74f00000000");
+        // rangeEnd.SetBase16("2832ed74f2fffffff");
+
+
+        // 1AUNPZwNmyDhxy7M4rVctPBW6dL2ZrG4fK
+        //35da1daf9584d5308b54b0d753d93f59c5b55fdea71d8cccd9941ab73c21bfcc        rangeStart.SetBase16("2832ed74f00000000");
+        rangeStart.SetBase16("35da1daf9584d5308b54b0d753d93f59c5b55fdea71d8cccd9941ab730000000");
+        rangeEnd.SetBase16("35da1daf9584d5308b54b0d753d93f59c5b55fdea71d8cccd9941ab740000000");
+        // rangeEnd.SetBase16("35da1daf9584d5308b54b0d753d93f59c5b55fdea71d8cccd9941ab750000000");
+
+        //================= TEST-end ==================================================
     
 }
 
@@ -492,25 +508,20 @@ void run(){
             std::string firstLetter_addr(1, addr[0]);
 
             if (firstLetter_addr == "1") { n_P2PKH++; } 
-			
 			if (firstLetter_addr == "3") { n_P2SH++; } 
-			
 			if (firstLetter_addr == "b") { n_BECH32++; }
-
         }   
         file_data.close();
     } else {   std::cout << "Err file_data !!!" << std::endl;   }
 
 
-	// std::cout << std::endl <<"n_P2PKH : " << n_P2PKH;
-	// std::cout << std::endl <<"n_P2SH : " << n_P2SH;
-	// std::cout << std::endl <<"n_BECH32 : " << n_BECH32;
-    
-	
+
+
     // list array data to store each type
     uint32_t arrData_P2PKH[5 * n_P2PKH + 1]; 
     uint32_t arrData_P2SH[5 * n_P2SH  + 1]; 
     uint32_t arrData_BECH32[5 * n_BECH32 + 1];  
+
 	arrData_P2PKH[0] 	= n_P2PKH;
 	arrData_P2SH[0] 	= n_P2SH;
 	arrData_BECH32[0] 	= n_BECH32;
@@ -608,37 +619,6 @@ void run(){
 
 	delete v;
 }
-
-
-
-//---CODENOW - END --------------------------------------------------------------------
-//---CODENOW - END --------------------------------------------------------------------
-//---CODENOW - END --------------------------------------------------------------------
-//---CODENOW - END --------------------------------------------------------------------
-//---CODENOW - END --------------------------------------------------------------------
-//---CODENOW - END --------------------------------------------------------------------
-//---CODENOW - END --------------------------------------------------------------------
-//---CODENOW - END --------------------------------------------------------------------
-//---CODENOW - END --------------------------------------------------------------------
-//---CODENOW - END --------------------------------------------------------------------
-//---CODENOW - END --------------------------------------------------------------------
-//---CODENOW - END --------------------------------------------------------------------
-//---CODENOW - END --------------------------------------------------------------------
-//---CODENOW - END --------------------------------------------------------------------
-//---CODENOW - END --------------------------------------------------------------------
-//---CODENOW - END --------------------------------------------------------------------
-//---CODENOW - END --------------------------------------------------------------------
-//---CODENOW - END --------------------------------------------------------------------
-//---CODENOW - END --------------------------------------------------------------------
-//---CODENOW - END --------------------------------------------------------------------
-//---CODENOW - END --------------------------------------------------------------------
-//---CODENOW - END --------------------------------------------------------------------
-//---CODENOW - END --------------------------------------------------------------------
-//---CODENOW - END --------------------------------------------------------------------
-//---CODENOW - END --------------------------------------------------------------------
-//---CODENOW - END --------------------------------------------------------------------
-
-
 
 int main(){
     run();
