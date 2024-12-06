@@ -13,7 +13,9 @@
 
 typedef struct {
 	uint32_t thId;
-	int16_t  incr;
+	// int16_t  incr;
+	uint32_t  incr;
+	// uint32_t  typeAddr;
 	uint8_t* hash; 
 } ITEM;
 

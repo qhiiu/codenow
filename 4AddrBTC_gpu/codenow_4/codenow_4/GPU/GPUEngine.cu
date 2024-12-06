@@ -30,7 +30,8 @@ __device__ uint64_t* Gy = NULL;
 
 // ---------------------------------------------------------------------------------------
 
-__device__ __noinline__ void Check__Hash(uint64_t* px, uint64_t* py, int32_t incr, uint32_t* out_found, uint32_t* __input_arrData_P2PKH_GPU, uint32_t* __input_arrData_P2SH_GPU, uint32_t* __input_arrData_BECH32_GPU)
+// __device__ __noinline__ void Check__Hash(uint64_t* px, uint64_t* py, int32_t incr, uint32_t* out_found, uint32_t* __input_arrData_P2PKH_GPU, uint32_t* __input_arrData_P2SH_GPU, uint32_t* __input_arrData_BECH32_GPU)
+__device__ __noinline__ void Check__Hash(uint64_t* px, uint64_t* py, uint32_t incr, uint32_t* out_found, uint32_t* __input_arrData_P2PKH_GPU, uint32_t* __input_arrData_P2SH_GPU, uint32_t* __input_arrData_BECH32_GPU)
 {	
 
 	uint8_t isOdd = py[0] & 1; 
@@ -58,12 +59,12 @@ __device__ __noinline__ void Check__Hash(uint64_t* px, uint64_t* py, int32_t inc
 
 
 	// ---------- so sánh từng h[5] với arrData -------------- 
-	// 1 =============== P2PKHc + P2PKHu ===============
+	// 1 =============== P2PKH_C + P2PKH_U ===============
 	uint32_t n_P2PKH = __input_arrData_P2PKH_GPU[0];
 	
 	for (uint32_t i = 0; i < n_P2PKH; i++)
 	{
-		// 	1.1 =============== P2PKHc =============== 
+		// 	1.1 =============== P2PKH_C =============== 
 		if(_hash160_P2PKHc_and_BECH32[0] == __input_arrData_P2PKH_GPU[5 * i + 1]) {
 			if(_hash160_P2PKHc_and_BECH32[1] == __input_arrData_P2PKH_GPU[5 * i + 2]){
 				if(_hash160_P2PKHc_and_BECH32[2] == __input_arrData_P2PKH_GPU[5 * i + 3]){
@@ -77,7 +78,8 @@ __device__ __noinline__ void Check__Hash(uint64_t* px, uint64_t* py, int32_t inc
 							uint32_t nbFounded = atomicAdd(out_found, 1); // add 1 in out_found[0]
 							
 							out_found[nbFounded * 7 + 1] = tid;
-							out_found[nbFounded * 7 + 2] = (uint32_t)(incr << 16);
+							// out_found[nbFounded * 7 + 2] = (uint32_t)(incr << 16);
+							out_found[nbFounded * 7 + 2] = incr;
 							out_found[nbFounded * 7 + 3] = _hash160_P2PKHc_and_BECH32[0];
 							out_found[nbFounded * 7 + 4] = _hash160_P2PKHc_and_BECH32[1];
 							out_found[nbFounded * 7 + 5] = _hash160_P2PKHc_and_BECH32[2];
@@ -90,7 +92,7 @@ __device__ __noinline__ void Check__Hash(uint64_t* px, uint64_t* py, int32_t inc
 			}
 		}
 
-		// 1.2 =============== P2PKHu =============== 
+		// 1.2 =============== P2PKH_U =============== 
 		if(_hash160_P2PKHu[0] == __input_arrData_P2PKH_GPU[5 * i + 1]) {
 			if(_hash160_P2PKHu[1] == __input_arrData_P2PKH_GPU[5 * i + 2]){
 				if(_hash160_P2PKHu[2] == __input_arrData_P2PKH_GPU[5 * i + 3]){
@@ -147,7 +149,6 @@ __device__ __noinline__ void Check__Hash(uint64_t* px, uint64_t* py, int32_t inc
 							out_found[nbFounded * 7 + 6] = _hash160_P2PKHc_and_BECH32[3]; 
 							out_found[nbFounded * 7 + 7] = _hash160_P2PKHc_and_BECH32[4];	
 	
-
 						}	
 					}	
 				}	
@@ -727,11 +728,12 @@ bool GPUEngine::LaunchSEARCH_MODE_SA(std::vector<ITEM>& dataFound)
 
 	for (uint32_t i = 0; i < nbFound; i++) //if found right key-hash-addr
 	{ 
-		uint32_t* itemPtr = outputBufferPinned + (i * ITEM_SIZE_A32 + 1); //ITEM_SIZE_A32 = 7
+		uint32_t* itemPtr = outputBufferPinned + (i * 7 + 1); // 7 mean : each nbFound take 7 bytes
 		ITEM it;
 		it.thId = itemPtr[0];
-		int16_t* ptr = (int16_t*)&(itemPtr[1]);
-		it.incr = ptr[1];  
+		// int16_t* ptr = (int16_t*)&(itemPtr[1]);
+		// it.incr = ptr[1];  
+		it.incr = itemPtr[1];  
 		it.hash = (uint8_t*)(itemPtr + 2);
 		dataFound.push_back(it);
 	}

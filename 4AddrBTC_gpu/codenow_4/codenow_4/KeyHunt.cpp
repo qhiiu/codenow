@@ -159,8 +159,8 @@ void KeyHunt::output(std::string addr, std::string pAddr, std::string pAddrHex, 
 	fprintf(stdout, "Priv (WIF): p2pkh:%s\n", pAddr.c_str());
 	fprintf(f, "Priv (HEX): %s\n", pAddrHex.c_str());
 	fprintf(stdout, "Priv (HEX): %s\n", pAddrHex.c_str());
-	fprintf(f, "PubK (HEX): %s\n", pubKey.c_str());
-	fprintf(stdout, "PubK (HEX): %s\n", pubKey.c_str());
+	// fprintf(f, "PubK (HEX): %s\n", pubKey.c_str());
+	// fprintf(stdout, "PubK (HEX): %s\n", pubKey.c_str());
 	fprintf(f, "=================================================================================\n");
 	fprintf(stdout, "=================================================================================\n");
 
