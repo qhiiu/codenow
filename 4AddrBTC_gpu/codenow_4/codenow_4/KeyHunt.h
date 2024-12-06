@@ -8,8 +8,14 @@
 #ifdef WIN64
 #include <Windows.h>
 #endif
-
+ 
 #define CPU_GRP_SIZE (2048 * 1)
+
+
+#define P2PKH_C 1
+#define P2PKH_U 2
+#define P2SH 	3
+#define BECH32 	4
 
 class KeyHunt;
 
@@ -47,9 +53,9 @@ private:
 
 	void InitGenratorTable();
 
-	bool checkPrivKey(std::string addr, Int& key, int32_t incr);
+	bool checkPrivKey(std::string addr, Int& key, int32_t incr, uint32_t typeAddr);
 
-	void output(std::string addr, std::string pAddr, std::string pAddrHex, std::string pubKey);
+	void print_and_save_data(std::string addr, std::string pAddr, std::string pAddrHex, std::string pubKey, std::string typeAddr);
 	bool isAlive(TH_PARAM* p);
 
 	bool hasStarted(TH_PARAM* p);
@@ -73,19 +79,6 @@ private:
 
 	std::string outputFile;
 
-	//============== codenow here --- how to declare arrData in KeyHunt.h 
-    // uint32_t n_P2PKH;
-    // uint32_t n_P2SH;
-    // uint32_t n_BECH32;
-	//
-	// uint32_t arrData_P2PKH_KEYHUNT[n_P2PKH]; 
-	// uint32_t arrData_P2SH_KEYHUNT[n_P2SH];
-	// uint32_t arrData_BECH32_KEYHUNT[n_BECH32];
-	//
-	// uint32_t arrData_P2PKH_KEYHUNT[1000]; 
-	// uint32_t arrData_P2SH_KEYHUNT[1000];
-	// uint32_t arrData_BECH32_KEYHUNT[1000];
-
 	uint32_t* arrData_P2PKH_KEYHUNT; 
 	uint32_t* arrData_P2SH_KEYHUNT;
 	uint32_t* arrData_BECH32_KEYHUNT;
@@ -99,6 +92,8 @@ private:
 	Int rangeEnd;
 	Int rangeDiff;
 	Int rangeDiff2;
+
+	uint32_t maxFound = 99;
 
 };
 

@@ -137,7 +137,7 @@ KeyHunt::~KeyHunt()
 
 // ----------------------------------------------------------------------------
 
-void KeyHunt::output(std::string addr, std::string pAddr, std::string pAddrHex, std::string pubKey)
+void KeyHunt::print_and_save_data(std::string addr, std::string pAddr, std::string pAddrHex, std::string pubKey, std::string typeAddr)
 {
 	FILE* f = stdout;
 	bool needToClose = false;
@@ -152,13 +152,19 @@ void KeyHunt::output(std::string addr, std::string pAddr, std::string pAddrHex, 
 
 	if (!needToClose){ printf("\n"); }
 
-	fprintf(f, "PubAddress: %s\n", addr.c_str());
+	fprintf(f, "Address: %s\n", addr.c_str());
 	fprintf(stdout, "\n=================================================================================\n");
-	fprintf(stdout, "PubAddress: %s\n", addr.c_str());
+	fprintf(stdout, "Address: %s\n", addr.c_str());
+	
 	fprintf(f, "Priv (WIF): p2pkh:%s\n", pAddr.c_str());
 	fprintf(stdout, "Priv (WIF): p2pkh:%s\n", pAddr.c_str());
+	
 	fprintf(f, "Priv (HEX): %s\n", pAddrHex.c_str());
 	fprintf(stdout, "Priv (HEX): %s\n", pAddrHex.c_str());
+
+	fprintf(f, "typeAddr : %s\n", typeAddr.c_str());
+	fprintf(stdout, "typeAddr : %s\n", typeAddr.c_str());
+
 	// fprintf(f, "PubK (HEX): %s\n", pubKey.c_str());
 	// fprintf(stdout, "PubK (HEX): %s\n", pubKey.c_str());
 	fprintf(f, "=================================================================================\n");
@@ -172,17 +178,36 @@ void KeyHunt::output(std::string addr, std::string pAddr, std::string pAddrHex, 
 
 // ----------------------------------------------------------------------------
 
-bool KeyHunt::checkPrivKey(std::string addr, Int& key, int32_t incr)
+bool KeyHunt::checkPrivKey(std::string addr, Int& key, int32_t incr, uint32_t typeAddr)
 {
 	Int k(&key);
 	k.Add((uint64_t)incr);
 
 	// Check addresses
 	Point p = secp->ComputePublicKey(&k);
+
 	std::string px = p.x.GetBase16();
+
 	std::string chkAddr = secp->GetAddress(1, p);
+
+	std::string type_addr;
+	switch (typeAddr)
+	{
+	case P2PKH_C:
+		type_addr = "P2PKH_C";
+		break;
+	case P2PKH_U:
+		type_addr = "P2PKH_U";
+		break;
+	case P2SH:
+		type_addr = "P2SH";
+		break;
+	case BECH32:
+		type_addr = "BECH32";
+		break;
+	}
 	
-	output(addr, secp->GetPrivAddress(1, k), k.GetBase16(), secp->GetPublicKeyHex(1, p));
+	print_and_save_data(addr, secp->GetPrivAddress(1, k), k.GetBase16(), secp->GetPublicKeyHex(1, p), type_addr);
 	return true;
 }
 
@@ -241,8 +266,7 @@ void KeyHunt::FindKeyGPU(TH_PARAM * ph)
 
 	GPUEngine* g;
 
-	// g = new GPUEngine(secp, ph->gridSizeX, ph->gridSizeY, ph->gpuId, hash160_target_KEYHUNT); 
-	g = new GPUEngine(secp, ph->gridSizeX, ph->gridSizeY, ph->gpuId, 
+	g = new GPUEngine(secp, ph->gridSizeX, ph->gridSizeY, ph->gpuId, this->maxFound,
 						arrData_P2PKH_KEYHUNT, arrData_P2SH_KEYHUNT, arrData_BECH32_KEYHUNT); 
 	
 	// g->PrintCudaInfo(); //hiiu
@@ -269,7 +293,8 @@ void KeyHunt::FindKeyGPU(TH_PARAM * ph)
 			ITEM it = found[i];
 				std::string addr = secp->GetAddress(1, it.hash);
 				// std::string addr = secp->GetAddress(0, it.hash);
-				if (checkPrivKey(addr, keys[it.thId], it.incr)) {	nbFoundKey++;	}
+
+				if (checkPrivKey(addr, keys[it.thId], it.incr, it.typeAddr)) {	nbFoundKey++;	}
 		}
 
 		if (ok) {
@@ -452,7 +477,7 @@ void KeyHunt::Search(std::vector<int> gpuId, std::vector<int> gridSize, bool& sh
 		lastCount = count;
 		lastGPUCount = gpuCount;
 		t0 = t1;
-		if (should_exit || nbFoundKey >= 1 || completedPerc > 100.5)
+		if (should_exit || nbFoundKey >= this->maxFound || completedPerc > 100.5)
 			endOfSearch = true;
 	}
 

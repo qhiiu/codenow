@@ -7,16 +7,21 @@
 // Number of key per thread (must be a multiple of GRP_SIZE) per kernel call
 #define STEP_SIZE (2048 * 1) 
 
-// Number of thread per block
-#define ITEM_SIZE_A 28
+// #define ITEM_SIZE_A 28
+#define ITEM_SIZE_A 32
 #define ITEM_SIZE_A32 (ITEM_SIZE_A/4)
+
+
+#define P2PKH_C 1
+#define P2PKH_U 2
+#define P2SH 	3
+#define BECH32 	4
 
 typedef struct {
 	uint32_t thId;
-	// int16_t  incr;
-	uint32_t  incr;
-	// uint32_t  typeAddr;
+	int16_t  incr;
 	uint8_t* hash; 
+	uint32_t typeAddr;
 } ITEM;
 
 class GPUEngine
@@ -26,7 +31,7 @@ public:
 	// GPUEngine(Secp256K1* secp, int nbThreadGroup, int nbThreadPerGroup, int gpuId, 
 	// 	const uint32_t* hash160_target_gpu);
 
-	GPUEngine(Secp256K1* secp, int nbThreadGroup, int nbThreadPerGroup, int gpuId, 
+	GPUEngine(Secp256K1* secp, int nbThreadGroup, int nbThreadPerGroup, int gpuId, uint32_t maxFound,
 		const uint32_t* arrData_P2PKH_GPU, const uint32_t* arrData_P2SH_GPU, const uint32_t* arrData_BECH32_GPU);
 
 	~GPUEngine();
@@ -72,7 +77,6 @@ private:
 
 	bool initialised;
 
-	uint32_t maxFound;
 	uint32_t outputSize;
 
 

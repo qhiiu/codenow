@@ -1,4 +1,5 @@
-PubAddress: 1AUNPZwNmyDhxy7M4rVctPBW6dL2ZrG4fK
+Address: 1AUNPZwNmyDhxy7M4rVctPBW6dL2ZrG4fK
 Priv (WIF): p2pkh:Ky2PhVDrtZKNDYcHCoiMwcM4piA1YvMQx3w5vDeXXgKbAzWfsGYt
 Priv (HEX): 35DA1DAF9584D5308B54B0D753D93F59C5B55FDEA71D8CCCD9941AB73C21BFCC
+typeAddr : BECH32
 =================================================================================
