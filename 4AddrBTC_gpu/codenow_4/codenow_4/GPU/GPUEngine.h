@@ -12,10 +12,10 @@
 #define ITEM_SIZE_A32 (ITEM_SIZE_A/4)
 
 
-#define P2PKH_C 1
-#define P2PKH_U 2
-#define P2SH 	3
-#define BECH32 	4
+#define _P2PKH_C 1
+#define _P2PKH_U 2
+#define _P2SH 	3
+#define _BECH32 4
 
 typedef struct {
 	uint32_t thId;

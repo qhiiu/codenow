@@ -85,7 +85,7 @@ __device__ __noinline__ void Check__Hash(uint64_t* px, uint64_t* py, uint32_t in
 							out_found[nbFounded * 8 + 6] = _hash160_P2PKHc_and_BECH32[3]; 
 							out_found[nbFounded * 8 + 7] = _hash160_P2PKHc_and_BECH32[4];	
 
-							uint32_t typeAddr = P2PKH_C;
+							uint32_t typeAddr = _P2PKH_C;
 							out_found[nbFounded * 8 + 8] = typeAddr;	
 						}	
 					}	
@@ -114,7 +114,7 @@ __device__ __noinline__ void Check__Hash(uint64_t* px, uint64_t* py, uint32_t in
 							out_found[nbFounded * 8 + 6] = _hash160_P2PKHu[3]; 
 							out_found[nbFounded * 8 + 7] = _hash160_P2PKHu[4];	
 
-							uint32_t typeAddr = P2PKH_U;
+							uint32_t typeAddr = _P2PKH_U;
 							out_found[nbFounded * 8 + 8] = typeAddr;	
 						}	
 					}	
@@ -122,7 +122,7 @@ __device__ __noinline__ void Check__Hash(uint64_t* px, uint64_t* py, uint32_t in
 			}
 		}
 
-	} // end for
+	} // end for 
 
 	
 	// 2 =============== P2SH ===============
@@ -137,7 +137,7 @@ __device__ __noinline__ void Check__Hash(uint64_t* px, uint64_t* py, uint32_t in
 					if(_hash160_P2SH[3] == __input_arrData_P2SH_GPU[5 * i + 4]){
 						if(_hash160_P2SH[4] == __input_arrData_P2SH_GPU[5 * i + 5]){			
 
-							printf("\n\n ===== $$$$ ====== p2pkhc \n\n");
+							printf("\n\n ===== $$$$ ====== p2sh \n\n");
 
 							uint32_t thId = (blockIdx.x * blockDim.x) + threadIdx.x;			
 							
@@ -151,7 +151,7 @@ __device__ __noinline__ void Check__Hash(uint64_t* px, uint64_t* py, uint32_t in
 							out_found[nbFounded * 8 + 6] = _hash160_P2SH[3]; 
 							out_found[nbFounded * 8 + 7] = _hash160_P2SH[4];	
 	
-							uint32_t typeAddr = P2SH;
+							uint32_t typeAddr = _P2SH;
 							out_found[nbFounded * 8 + 8] = typeAddr;	
 						}	
 					}	
@@ -174,7 +174,7 @@ __device__ __noinline__ void Check__Hash(uint64_t* px, uint64_t* py, uint32_t in
 					if(_hash160_P2PKHc_and_BECH32[3] == __input_arrData_BECH32_GPU[5 * i + 4]){
 						if(_hash160_P2PKHc_and_BECH32[4] == __input_arrData_BECH32_GPU[5 * i + 5]){			
 
-							printf("\n\n ===== $$$$ ====== p2pkhc \n\n");
+							printf("\n\n ===== $$$$ ====== bech32 \n\n");
 
 							uint32_t thId = (blockIdx.x * blockDim.x) + threadIdx.x;			
 							
@@ -188,7 +188,7 @@ __device__ __noinline__ void Check__Hash(uint64_t* px, uint64_t* py, uint32_t in
 							out_found[nbFounded * 8 + 6] = _hash160_P2PKHc_and_BECH32[3]; 
 							out_found[nbFounded * 8 + 7] = _hash160_P2PKHc_and_BECH32[4];	
 	
-							uint32_t typeAddr = BECH32;
+							uint32_t typeAddr = _BECH32;
 							out_found[nbFounded * 8 + 8] = typeAddr;	
 
 						}	

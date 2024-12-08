@@ -14,7 +14,7 @@
 
 #define P2PKH_C 1
 #define P2PKH_U 2
-#define P2SH 	3
+#define P2SH   	3
 #define BECH32 	4
 
 class KeyHunt;
@@ -86,7 +86,6 @@ private:
 	
 	Int priv_dec;
 	uint64_t xN;
-	// uint64_t P;
 	
 	Int rangeStart;
 	Int rangeEnd;
