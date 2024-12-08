@@ -14,7 +14,7 @@
 
 #define _P2PKH_C 1
 #define _P2PKH_U 2
-#define _P2SH 	3
+#define _P2SH 	3 
 #define _BECH32 4
 
 typedef struct {
@@ -36,7 +36,7 @@ public:
 
 	~GPUEngine();
 
-	bool SetKeys(Point* p);
+	bool SetKeys(Point* list_pubKey);
 
 	bool LaunchSEARCH_MODE_SA(std::vector<ITEM>& dataFound);
 

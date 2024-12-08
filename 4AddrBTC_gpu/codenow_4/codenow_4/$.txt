@@ -1,0 +1,18 @@
+
+=================================================================================
+
+Address: -----> bc1qvlnr003y3c0gfgftzz8468xpchd38e4v63hrl5 <----- typeAddr : BECH32
+
+Priv (HEX): 35DA1DAF9584D5308B54B0D753D93F59C5B55FDEA71D8CCCD9941AB73C21BFCC
+Priv (WIF): Ky2PhVDrtZKNDYcHCoiMwcM4piA1YvMQx3w5vDeXXgKbAzWfsGYt
+
+=================================================================================
+
+=================================================================================
+
+Address: -----> 1DundzvVJ2BMUMDgSh3mGua8n6C1NTruDF <----- typeAddr : P2PKH_C
+
+Priv (HEX): 35DA1DAF9584D5308B54B0D753D93F59C5B55FDEA71D8CCCD9941AB73FFFFFF0
+Priv (WIF): Ky2PhVDrtZKNDYcHCoiMwcM4piA1YvMQx3w5vDeXaXxG5TAYSeuK
+
+=================================================================================

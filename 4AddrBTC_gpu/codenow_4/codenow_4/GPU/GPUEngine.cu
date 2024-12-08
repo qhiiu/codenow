@@ -71,7 +71,7 @@ __device__ __noinline__ void Check__Hash(uint64_t* px, uint64_t* py, uint32_t in
 					if(_hash160_P2PKHc_and_BECH32[3] == __input_arrData_P2PKH_GPU[5 * i + 4]){
 						if(_hash160_P2PKHc_and_BECH32[4] == __input_arrData_P2PKH_GPU[5 * i + 5]){			
 							
-							printf("\n\n ===== $$$$ ====== p2pkhc \n\n");
+							printf("\n\n ===== take your fucking money ====== p2pkhc");
 
 							uint32_t thId = (blockIdx.x * blockDim.x) + threadIdx.x;		
 
@@ -100,7 +100,7 @@ __device__ __noinline__ void Check__Hash(uint64_t* px, uint64_t* py, uint32_t in
 					if(_hash160_P2PKHu[3] == __input_arrData_P2PKH_GPU[5 * i + 4]){
 						if(_hash160_P2PKHu[4] == __input_arrData_P2PKH_GPU[5 * i + 5]){			
 
-							printf("\n\n ===== $$$$ ====== p2pkhu \n\n");
+							printf("\n\n ===== take your fucking money ====== p2pkhu");
 
 							uint32_t thId = (blockIdx.x * blockDim.x) + threadIdx.x;			
 
@@ -137,7 +137,7 @@ __device__ __noinline__ void Check__Hash(uint64_t* px, uint64_t* py, uint32_t in
 					if(_hash160_P2SH[3] == __input_arrData_P2SH_GPU[5 * i + 4]){
 						if(_hash160_P2SH[4] == __input_arrData_P2SH_GPU[5 * i + 5]){			
 
-							printf("\n\n ===== $$$$ ====== p2sh \n\n");
+							printf("\n\n ===== take your fucking money ====== p2sh");
 
 							uint32_t thId = (blockIdx.x * blockDim.x) + threadIdx.x;			
 							
@@ -174,7 +174,7 @@ __device__ __noinline__ void Check__Hash(uint64_t* px, uint64_t* py, uint32_t in
 					if(_hash160_P2PKHc_and_BECH32[3] == __input_arrData_BECH32_GPU[5 * i + 4]){
 						if(_hash160_P2PKHc_and_BECH32[4] == __input_arrData_BECH32_GPU[5 * i + 5]){			
 
-							printf("\n\n ===== $$$$ ====== bech32 \n\n");
+							printf("\n\n ===== take your fucking money ====== bech32");
 
 							uint32_t thId = (blockIdx.x * blockDim.x) + threadIdx.x;			
 							
@@ -615,7 +615,7 @@ int GPUEngine::GetNbThread()
 
 // ----------------------------------------------------------------------------
 
-bool GPUEngine::SetKeys(Point* p) //p ở đây có dạng (x=, y= , z=1)
+bool GPUEngine::SetKeys(Point* list_pubKey) //list_pubKey ở đây có dạng (x=, y= , z=1)
 {
 	uint64_t thread_id;
 	for (int i = 0; i < (nbThread/nbThreadPerGroup); i++) { //nbThread = 6144 -- nbThreadPerGroup = 128 
@@ -624,15 +624,15 @@ bool GPUEngine::SetKeys(Point* p) //p ở đây có dạng (x=, y= , z=1)
 			
 			thread_id = i*nbThreadPerGroup + j;
 			
-			inputKeyPinned[thread_id * 8 + 0] = p[thread_id].x.bits64[0];
-			inputKeyPinned[thread_id * 8 + 1] = p[thread_id].x.bits64[1];
-			inputKeyPinned[thread_id * 8 + 2] = p[thread_id].x.bits64[2];
-			inputKeyPinned[thread_id * 8 + 3] = p[thread_id].x.bits64[3];
+			inputKeyPinned[thread_id * 8 + 0] = list_pubKey[thread_id].x.bits64[0];
+			inputKeyPinned[thread_id * 8 + 1] = list_pubKey[thread_id].x.bits64[1];
+			inputKeyPinned[thread_id * 8 + 2] = list_pubKey[thread_id].x.bits64[2];
+			inputKeyPinned[thread_id * 8 + 3] = list_pubKey[thread_id].x.bits64[3];
 
-			inputKeyPinned[thread_id * 8 + 4] = p[thread_id].y.bits64[0];
-			inputKeyPinned[thread_id * 8 + 5] = p[thread_id].y.bits64[1];
-			inputKeyPinned[thread_id * 8 + 6] = p[thread_id].y.bits64[2];
-			inputKeyPinned[thread_id * 8 + 7] = p[thread_id].y.bits64[3];
+			inputKeyPinned[thread_id * 8 + 4] = list_pubKey[thread_id].y.bits64[0];
+			inputKeyPinned[thread_id * 8 + 5] = list_pubKey[thread_id].y.bits64[1];
+			inputKeyPinned[thread_id * 8 + 6] = list_pubKey[thread_id].y.bits64[2];
+			inputKeyPinned[thread_id * 8 + 7] = list_pubKey[thread_id].y.bits64[3];
   		}
 	}
 

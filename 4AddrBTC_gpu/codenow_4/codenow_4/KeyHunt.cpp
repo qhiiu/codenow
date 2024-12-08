@@ -1,11 +1,3 @@
-
-
-
-
-
-
-
-
 #include "KeyHunt.h"
 #include "GmpUtil.h"
 #include "Base58.h"
@@ -25,218 +17,11 @@ using namespace std;
 Point Gn[CPU_GRP_SIZE / 2]; 
 Point _2Gn;
 
-
-////////////////////////////////////////
-////////////////////////////////////////
-////////////////////////////////////////
-////////////////////////////////////////
-////////////////////////////////////////
-////////////////////////////////////////
-////////////////////////////////////////
-////////////////////////////////////////
-////////////////////////////////////////
-////////////////////////////////////////
-////////////////////////////////////////
-////////////////////////////////////////
-////////////////////////////////////////
-////////////////////////////////////////
-////////////////////////////////////////
-////////////////////////////////////////
-////////////////////////////////////////
-////////////////////////////////////////
-////////////////////////////////////////
-////////////////////////////////////////
-////////////////////////////////////////
-////////////////////////////////////////
-////////////////////////////////////////
-////////////////////////////////////////
-////////////////////////////////////////
-////////////////////////////////////////
-////////////////////////////////////////
-////////////////////////////////////////
-////////////////////////////////////////
-////////////////////////////////////////
-////////////////////////////////////////
-////////////////////////////////////////
-////////////////////////////////////////
-////////////////////////////////////////
-////////////////////////////////////////
-////////////////////////////////////////
-
-#include <cstdint>
-#include <cstddef>
-#include <cstring>
-
-
-//============== BECH_32 - start ================================================================================
-	static const char* charset = "qpzry9x8gf2tvdw0s3jn54khce6mua7l";
-	
-//----------------------------------------------------------
-	static int convert_bits(uint8_t* out, size_t* outlen, int outbits, const uint8_t* in, size_t inlen, int inbits, int pad) {
-	uint32_t val = 0;
-	int bits = 0;
-	uint32_t maxv = (((uint32_t)1) << outbits) - 1;
-	while (inlen--) {
-		val = (val << inbits) | *(in++);
-		bits += inbits;
-		while (bits >= outbits) {
-		bits -= outbits;
-		out[(*outlen)++] = (val >> bits) & maxv;
-		}
-	}
-	if (pad) {
-		if (bits) {
-		out[(*outlen)++] = (val << (outbits - bits)) & maxv;
-		}
-	} else if (((val << (outbits - bits)) & maxv) || bits >= inbits) {
-		return 0;
-	}
-	return 1;
-	}
-
-//----------------------------------------------------------
-	uint32_t hiiu_bech32_polymod_step(uint32_t pre) {
-	uint8_t b = pre >> 25;
-	return ((pre & 0x1FFFFFF) << 5) ^
-		(-((b >> 0) & 1) & 0x3b6a57b2UL) ^
-		(-((b >> 1) & 1) & 0x26508e6dUL) ^
-		(-((b >> 2) & 1) & 0x1ea119faUL) ^
-		(-((b >> 3) & 1) & 0x3d4233ddUL) ^
-		(-((b >> 4) & 1) & 0x2a1462b3UL);
-	}
-
-//----------------------------------------------------------
-	int hiiu_bech32_encode(char *output, const char *hrp, const uint8_t *data, size_t data_len) {
-	uint32_t chk = 1;
-	size_t i = 0;
-	while (hrp[i] != 0) {
-		int ch = hrp[i];
-		if (ch < 33 || ch > 126) {
-		return 0;
-		}
-
-		if (ch >= 'A' && ch <= 'Z') return 0;
-		chk = hiiu_bech32_polymod_step(chk) ^ (ch >> 5);
-		++i;
-	}
-	if (i + 7 + data_len > 90) return 0;
-	chk = hiiu_bech32_polymod_step(chk);
-	while (*hrp != 0) {
-		chk = hiiu_bech32_polymod_step(chk) ^ (*hrp & 0x1f);
-		*(output++) = *(hrp++);
-	}
-	*(output++) = '1';
-	for (i = 0; i < data_len; ++i) {
-		if (*data >> 5) return 0;
-		chk = hiiu_bech32_polymod_step(chk) ^ (*data);
-		*(output++) = charset[*(data++)];
-	}
-	for (i = 0; i < 6; ++i) {
-		chk = hiiu_bech32_polymod_step(chk);
-	}
-	chk ^= 1;
-	for (i = 0; i < 6; ++i) {
-		*(output++) = charset[(chk >> ((5 - i) * 5)) & 0x1f];
-	}
-	*output = 0;
-	return 1;
-	}
-
-//----------------------------------------------------------
-int hiiu_segwit_addr_encode(char *output, const char *hrp, int witver, const uint8_t *witprog, size_t witprog_len) {
-	uint8_t data[65];
-	size_t datalen = 0;
-	if (witver > 16) return 0;
-	if (witver == 0 && witprog_len != 20 && witprog_len != 32) return 0;
-	if (witprog_len < 2 || witprog_len > 40) return 0;
-	data[0] = witver;
-	convert_bits(data + 1, &datalen, 5, witprog, witprog_len, 8, 1);
-	++datalen;
-	return hiiu_bech32_encode(output, hrp, data, datalen);
-}
-
-//============== BECH_32 - end ================================================================================
-
-
-//============== HIIU::BITCOIN - start =============================================================================
-#include <iostream>
-
-class hiiu_Bitcoin 
-{
-	public:
-		std::string hash160ToAddr(int type, uint32_t* _hash160); //return STRING 
-};  
-//-------------------------------------------------------------------- 
-
-std::string hiiu_Bitcoin::hash160ToAddr(int type, uint32_t* _hash160){
-
-	Secp256K1* hiiu_secp = new Secp256K1();   
-	hiiu_secp->Init();	
-
-	unsigned char address[25];
-
-	switch (type) { 
-		case P2PKH_C:
-		case P2PKH_U:
-			address[0] = 0x00;
-			break;			
-		case P2SH:
-			address[0] = 0x05;
-			break;	
-		case BECH32: // codenow-here
-			memcpy(address + 1, _hash160, 20);
-			char addr_bech32[128];
-			hiiu_segwit_addr_encode(addr_bech32, "bc", 0, address + 1, 20);
-			return std::string(addr_bech32);
-			break;
-	}
-
-	memcpy(address + 1, _hash160, 20);
-	sha256_checksum(address, 21, address + 21);
-	std::string addr = EncodeBase58(address, address + 25);
-
-	delete hiiu_secp;
-	return addr;
-}
-//============== HIIU::BITCOIN - end =============================================================================
-
-/////////////////////////////////
-/////////////////////////////////
-/////////////////////////////////
-/////////////////////////////////
-/////////////////////////////////
-/////////////////////////////////
-/////////////////////////////////
-/////////////////////////////////
-/////////////////////////////////
-/////////////////////////////////
-/////////////////////////////////
-/////////////////////////////////
-/////////////////////////////////
-/////////////////////////////////
-/////////////////////////////////
-/////////////////////////////////
-/////////////////////////////////
-/////////////////////////////////
-/////////////////////////////////
-/////////////////////////////////
-/////////////////////////////////
-/////////////////////////////////
-/////////////////////////////////
-/////////////////////////////////
-/////////////////////////////////
-/////////////////////////////////
-/////////////////////////////////
-/////////////////////////////////
-/////////////////////////////////
-/////////////////////////////////
+#include "hashToAddr.cpp"
 
 
 // ----------------------------------------------------------------------------
 
-// KeyHunt::KeyHunt(const std::vector<unsigned char>& hashORxpoint, const std::string& outputFile,
-// 	const Int rangeStart, const Int rangeEnd, const Int priv_dec,uint64_t xN, uint64_t P, bool& should_exit)
-// {
 KeyHunt::KeyHunt(uint32_t* arrData_P2PKH, uint32_t* arrData_P2SH, uint32_t* arrData_BECH32, const std::string& outputFile,
 	const Int rangeStart, const Int rangeEnd, const Int priv_dec,uint64_t xN, bool& should_exit)
 {
@@ -253,32 +38,6 @@ KeyHunt::KeyHunt(uint32_t* arrData_P2PKH, uint32_t* arrData_P2SH, uint32_t* arrD
 
 	secp = new Secp256K1();
 	secp->Init();
-
-	// for (size_t i = 0; i < 5; i++){
-	// 	hash160_target_KEYHUNT[i] = hash160_target[i];
-	// }
-
-    // store number tpye of addr 
-    // this->n_P2PKH = arrData_P2PKH[0];
-    // this->n_P2SH = arrData_P2SH[0];
-    // this->n_BECH32 = arrData_BECH32[0];
-
-	//
-	// this->arrData_P2PKH_KEYHUNT[n_P2PKH];
-	// this->arrData_P2SH_KEYHUNT[n_P2SH];
-	// this->arrData_BECH32_KEYHUNT[n_BECH32];
-
-	// for (size_t i = 0; i < n_P2PKH; i++){
-	// 	this->arrData_P2PKH_KEYHUNT[i] = arrData_P2PKH[i];
-	// }
-
-	// for (size_t i = 0; i < n_P2SH; i++){
-	// 	this->arrData_P2SH_KEYHUNT[i] = arrData_P2SH[i];
-	// }
-
-	// for (size_t i = 0; i < n_BECH32; i++){
-	// 	this->arrData_BECH32_KEYHUNT[i] = arrData_BECH32[i];
-	// }
 
 	this->arrData_P2PKH_KEYHUNT = arrData_P2PKH;
 	this->arrData_P2SH_KEYHUNT = arrData_P2SH;
@@ -351,7 +110,7 @@ KeyHunt::~KeyHunt()
 
 // ----------------------------------------------------------------------------
 
-void KeyHunt::print_and_save_data(std::string addr, std::string pAddr, std::string pAddrHex, std::string pubKey, std::string typeAddr)
+void KeyHunt::print_and_save_data(std::string addr, std::string privWif, std::string privHex, std::string pubKey, std::string typeAddr)
 {
 	FILE* f = stdout;
 	bool needToClose = false;
@@ -366,12 +125,12 @@ void KeyHunt::print_and_save_data(std::string addr, std::string pAddr, std::stri
 
 	if (!needToClose){ printf("\n"); }
 
-	// save into file
+	// save into file 
 	fprintf(f, "\n=================================================================================\n\n");
-	fprintf(f, "Address: -----> %s <-----\n\n", addr.c_str());
-	fprintf(f, "Priv (HEX): %s\n", pAddrHex.c_str());
+	fprintf(f, "Address: -----> %s <----- ", addr.c_str());
 	fprintf(f, "typeAddr : %s\n\n", typeAddr.c_str());
-	fprintf(f, "Priv (WIF): %s\n\n", pAddr.c_str());
+	fprintf(f, "Priv (HEX): %s\n", privHex.c_str());
+	fprintf(f, "Priv (WIF): %s\n\n", privWif.c_str());
 	// fprintf(f, "PubK (HEX): %s\n", pubKey.c_str());
 	fprintf(f, "=================================================================================\n");
 
@@ -379,8 +138,8 @@ void KeyHunt::print_and_save_data(std::string addr, std::string pAddr, std::stri
 	fprintf(stdout, "\n=================================================================================\n\n");
 	fprintf(stdout, "Address: -----> %s <----- ", addr.c_str());
 	fprintf(stdout, "typeAddr : %s\n\n", typeAddr.c_str());
-	fprintf(stdout, "Priv (HEX): %s\n", pAddrHex.c_str());
-	fprintf(stdout, "Priv (WIF): %s\n\n", pAddr.c_str());
+	fprintf(stdout, "Priv (HEX): %s\n", privHex.c_str());
+	fprintf(stdout, "Priv (WIF): %s\n\n", privWif.c_str());
 	// fprintf(stdout, "PubK (HEX): %s\n", pubKey.c_str()); 
 	fprintf(stdout, "=================================================================================\n");
 
@@ -394,15 +153,11 @@ void KeyHunt::print_and_save_data(std::string addr, std::string pAddr, std::stri
 
 bool KeyHunt::checkPrivKey(std::string addr, Int& key, int32_t incr, uint32_t typeAddr)
 {
-	Int k(&key);
-	k.Add((uint64_t)incr);
+	Int priv(&key);
+	priv.Add((uint64_t)incr);
 
 	// Check addresses
-	Point p = secp->ComputePublicKey(&k);
-
-	std::string px = p.x.GetBase16();
-
-	// std::string chkAddr = secp->GetAddress(1, p);
+	Point p = secp->ComputePublicKey(&priv);
 
 	std::string type_addr;
 	switch (typeAddr)
@@ -421,7 +176,7 @@ bool KeyHunt::checkPrivKey(std::string addr, Int& key, int32_t incr, uint32_t ty
 		break;
 	}
 	
-	print_and_save_data(addr, secp->GetPrivAddress(1, k), k.GetBase16(), secp->GetPublicKeyHex(1, p), type_addr);
+	print_and_save_data(addr, secp->GetPrivAddress(1, priv), priv.GetBase16(), secp->GetPublicKeyHex(1, p), type_addr);
 	return true;
 }
 
@@ -436,7 +191,7 @@ void* _FindKeyGPU(void* lpParam)
 
 // ----------------------------------------------------------------------------
 
-void KeyHunt::getGPUStartingKeys(Int & tRangeStart, Int & tRangeEnd, int groupSize, int nbThread, Int * keys, Point * p)
+void KeyHunt::getGPUStartingKeys(Int & tRangeStart, Int & tRangeEnd, int groupSize, int nbThread, Int * keys, Point * list_pubKey)
 {
 	Int tRangeDiff(tRangeEnd);
 	Int tRangeStart2(tRangeStart);
@@ -462,7 +217,7 @@ void KeyHunt::getGPUStartingKeys(Int & tRangeStart, Int & tRangeEnd, int groupSi
 
 		Int k(keys + i);
 		k.Add((uint64_t)(groupSize / 2));	// Starting key is at the middle of the group
-		p[i] = secp->ComputePublicKey(&k);
+		list_pubKey[i] = secp->ComputePublicKey(&k);
 	}
 
 }
@@ -490,13 +245,13 @@ void KeyHunt::FindKeyGPU(TH_PARAM * ph)
 	printf("GPU	: %s\n\n", g->deviceName.c_str());
 	
 		
-	Point* p = new Point[nbThread];
+	Point* list_pubKey = new Point[nbThread];
 	Int* keys = new Int[nbThread];
 	std::vector<ITEM> found;
 	counters[thId] = 0;
 
-	getGPUStartingKeys(tRangeStart, tRangeEnd, g->GetGroupSize(), nbThread, keys, p);
-	ok = g->SetKeys(p);
+	getGPUStartingKeys(tRangeStart, tRangeEnd, g->GetGroupSize(), nbThread, keys, list_pubKey);
+	ok = g->SetKeys(list_pubKey);
 
 	ph->hasStarted = true; 
 
@@ -525,7 +280,7 @@ void KeyHunt::FindKeyGPU(TH_PARAM * ph)
 	}
 
 	delete[] keys;
-	delete[] p;
+	delete[] list_pubKey;
 	delete g;
 
 	ph->isRunning = false;
