@@ -215,8 +215,6 @@ inline void __cudaSafeCall(cudaError err, const char* file, const int line)
 	return;
 } 
 // ---------------------------------------------------------------------------------------
-
-// __global__ void compute_keys_comp_mode_sa(uint32_t* __hash160_target, uint64_t* __inputKey, uint32_t* out_found)
 __global__ void compute_keys_comp_mode_sa(uint32_t* __input_arrData_P2PKH_GPU, uint32_t* __input_arrData_P2SH_GPU, uint32_t* __input_arrData_BECH32_GPU, uint64_t* __inputKey, uint32_t* out_found)
 {
 			// blockDim.x = 128 // blockIdx.x = 0-> 48 
@@ -432,16 +430,13 @@ GPUEngine::GPUEngine(Secp256K1* secp, int nbThreadGroup, int nbThreadPerGroup, i
 	CudaSafeCall(cudaHostAlloc(&outputBufferPinned, outputSize, cudaHostAllocWriteCombined | cudaHostAllocMapped));
 
 
-	//----- codenow-4-------------------------------
-	//----- codenow-4-------------------------------
-	//----- codenow-4-------------------------------
-	//----- codenow-4-------------------------------
-	//----- codenow-4-------------------------------
+	// take nbElement in arrData in arr[0] 
 	this->n_P2PKH = arrData_P2PKH_GPU[0];
 	this->n_P2SH = arrData_P2SH_GPU[0];
 	this->n_BECH32 = arrData_BECH32_GPU[0];
 
 	// n in arrData take (n*5 + 1) elements 
+	// copy arrData from CPU to GPU
 	CudaSafeCall(cudaMalloc((void**)&input_arrData_P2PKH_GPU, (this->n_P2PKH * 5 + 1) * sizeof(uint32_t)));
 	CudaSafeCall(cudaMalloc((void**)&input_arrData_P2SH_GPU, (this->n_P2SH * 5 + 1) * sizeof(uint32_t)));
 	CudaSafeCall(cudaMalloc((void**)&input_arrData_BECH32_GPU, (this->n_BECH32 * 5 + 1) * sizeof(uint32_t)));
@@ -502,13 +497,13 @@ void GPUEngine::InitGenratorTable(Secp256K1* secp)
 
 
 	Point* Gn = new Point[size];
-	Point g = secp->G;
-	Gn[0] = g;
-	g = secp->DoubleDirect(g); 
-	Gn[1] = g;
+	Point G_point = secp->G;
+	Gn[0] = G_point;
+	G_point = secp->DoubleDirect(G_point); 
+	Gn[1] = G_point;
 	for (int i = 2; i < size; i++) {
-		g = secp->AddDirect(g, secp->G);
-		Gn[i] = g;
+		G_point = secp->AddDirect(G_point, secp->G);
+		Gn[i] = G_point;
 	}
 	// _2Gn = CPU_GRP_SIZE*G   
 	Point _2Gn = secp->DoubleDirect(Gn[size / 2 - 1]);
@@ -644,7 +639,7 @@ bool GPUEngine::SetKeys(Point* list_pubKey) //list_pubKey ở đây có dạng (
 
 	CudaSafeCall(cudaMemset(outputBuffer, 0, 4));
 
-	// compute_keys_comp_mode_sa <<< nbThread / nbThreadPerGroup, nbThreadPerGroup >>>(input_hash160_target_GPU, inputKey, outputBuffer);
+	//core of GPU is this code  <<<block, thread>>
 	compute_keys_comp_mode_sa <<< nbThread / nbThreadPerGroup, nbThreadPerGroup >>>(input_arrData_P2PKH_GPU, input_arrData_P2SH_GPU, input_arrData_BECH32_GPU, inputKey, outputBuffer);
 	return true;
 }
@@ -672,7 +667,7 @@ bool GPUEngine::LaunchSEARCH_MODE_SA(std::vector<ITEM>& dataFound)
 	uint32_t nbFound = outputBufferPinned[0];
 
 	// When can perform a standard copy, the kernel is eneded 
-	CudaSafeCall(cudaMemcpy(outputBufferPinned, outputBuffer, nbFound * ITEM_SIZE_A + 4, cudaMemcpyDeviceToHost)); // ITEM_SIZE_A = 28
+	CudaSafeCall(cudaMemcpy(outputBufferPinned, outputBuffer, nbFound * ITEM_SIZE_A + 4, cudaMemcpyDeviceToHost)); // ITEM_SIZE_A = 32
 	// CudaSafeCall(cudaMemcpy(outputBufferPinned, outputBuffer, nbFound * 32 + 4, cudaMemcpyDeviceToHost)); // ITEM_SIZE_A = 32
 
 	for (uint32_t i = 0; i < nbFound; i++) //if found right key-hash-addr
@@ -690,7 +685,7 @@ bool GPUEngine::LaunchSEARCH_MODE_SA(std::vector<ITEM>& dataFound)
 
 	CudaSafeCall(cudaMemset(outputBuffer, 0, 4));
 
-	// compute_keys_comp_mode_sa <<< nbThread / nbThreadPerGroup, nbThreadPerGroup >>>(input_hash160_target_GPU, inputKey, outputBuffer);
+	//core of GPU is this code  <<<block, thread>>
 	compute_keys_comp_mode_sa <<< nbThread / nbThreadPerGroup, nbThreadPerGroup >>>(input_arrData_P2PKH_GPU, input_arrData_P2SH_GPU, input_arrData_BECH32_GPU, inputKey, outputBuffer);
 
 	return true;

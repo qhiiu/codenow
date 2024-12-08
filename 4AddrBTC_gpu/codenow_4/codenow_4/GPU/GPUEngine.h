@@ -28,8 +28,6 @@ class GPUEngine
 {
 
 public:
-	// GPUEngine(Secp256K1* secp, int nbThreadGroup, int nbThreadPerGroup, int gpuId, 
-	// 	const uint32_t* hash160_target_gpu);
 
 	GPUEngine(Secp256K1* secp, int nbThreadGroup, int nbThreadPerGroup, int gpuId, uint32_t maxFound,
 		const uint32_t* arrData_P2PKH_GPU, const uint32_t* arrData_P2SH_GPU, const uint32_t* arrData_BECH32_GPU);

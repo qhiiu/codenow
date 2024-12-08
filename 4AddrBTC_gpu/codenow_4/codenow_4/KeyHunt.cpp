@@ -54,13 +54,13 @@ KeyHunt::KeyHunt(uint32_t* arrData_P2PKH, uint32_t* arrData_P2SH, uint32_t* arrD
 void KeyHunt::InitGenratorTable()
 {
 	// Compute Generator table G[n] = (n+1)*G 
-	Point g = secp->G;
-	Gn[0] = g;
-	g = secp->DoubleDirect(g);
-	Gn[1] = g;
+	Point G_point = secp->G;
+	Gn[0] = G_point;
+	G_point = secp->DoubleDirect(G_point);
+	Gn[1] = G_point;
 	for (int i = 2; i < CPU_GRP_SIZE / 2; i++) {
-		g = secp->AddDirect(g, secp->G);
-		Gn[i] = g;
+		G_point = secp->AddDirect(G_point, secp->G);
+		Gn[i] = G_point;
 	}
 	// _2Gn = CPU_GRP_SIZE*G
 	_2Gn = secp->DoubleDirect(Gn[CPU_GRP_SIZE / 2 - 1]);
@@ -157,7 +157,7 @@ bool KeyHunt::checkPrivKey(std::string addr, Int& key, int32_t incr, uint32_t ty
 	priv.Add((uint64_t)incr);
 
 	// Check addresses
-	Point p = secp->ComputePublicKey(&priv);
+	Point pubKey = secp->ComputePublicKey(&priv);
 
 	std::string type_addr;
 	switch (typeAddr)
@@ -176,7 +176,7 @@ bool KeyHunt::checkPrivKey(std::string addr, Int& key, int32_t incr, uint32_t ty
 		break;
 	}
 	
-	print_and_save_data(addr, secp->GetPrivAddress(1, priv), priv.GetBase16(), secp->GetPublicKeyHex(1, p), type_addr);
+	print_and_save_data(addr, secp->GetPrivAddress(1, priv), priv.GetBase16(), secp->GetPublicKeyHex(1, pubKey), type_addr);
 	return true;
 }
 
@@ -215,9 +215,9 @@ void KeyHunt::getGPUStartingKeys(Int & tRangeStart, Int & tRangeEnd, int groupSi
 
 		tRangeStart2.Add(&tRangeDiff);
 
-		Int k(keys + i);
-		k.Add((uint64_t)(groupSize / 2));	// Starting key is at the middle of the group
-		list_pubKey[i] = secp->ComputePublicKey(&k);
+		Int priv(keys + i);
+		priv.Add((uint64_t)(groupSize / 2));	// Starting key is at the middle of the group
+		list_pubKey[i] = secp->ComputePublicKey(&priv);
 	}
 
 }
@@ -233,16 +233,16 @@ void KeyHunt::FindKeyGPU(TH_PARAM * ph)
 	Int tRangeStart = ph->rangeStart;
 	Int tRangeEnd = ph->rangeEnd;
 
-	GPUEngine* g;
+	GPUEngine* gpuEngine;
 
-	g = new GPUEngine(secp, ph->gridSizeX, ph->gridSizeY, ph->gpuId, this->maxFound,
+	gpuEngine = new GPUEngine(secp, ph->gridSizeX, ph->gridSizeY, ph->gpuId, this->maxFound,
 						arrData_P2PKH_KEYHUNT, arrData_P2SH_KEYHUNT, arrData_BECH32_KEYHUNT); 
 	
-	// g->PrintCudaInfo(); //hiiu
+	// gpuEngine->PrintCudaInfo(); //hiiu
 
-	int nbThread = g->GetNbThread();
+	int nbThread = gpuEngine->GetNbThread();
 	printf("nbThread: %d\n", nbThread );
-	printf("GPU	: %s\n\n", g->deviceName.c_str());
+	printf("GPU	: %s\n\n", gpuEngine->deviceName.c_str());
 	
 		
 	Point* list_pubKey = new Point[nbThread];
@@ -250,14 +250,14 @@ void KeyHunt::FindKeyGPU(TH_PARAM * ph)
 	std::vector<ITEM> found;
 	counters[thId] = 0;
 
-	getGPUStartingKeys(tRangeStart, tRangeEnd, g->GetGroupSize(), nbThread, keys, list_pubKey);
-	ok = g->SetKeys(list_pubKey);
+	getGPUStartingKeys(tRangeStart, tRangeEnd, gpuEngine->GetGroupSize(), nbThread, keys, list_pubKey);
+	ok = gpuEngine->SetKeys(list_pubKey);
 
 	ph->hasStarted = true; 
 
 	// ==================== core of process is here ====================================== 
 	while (ok && !endOfSearch) { // if found right key --> run inside
-		ok = g->LaunchSEARCH_MODE_SA(found);
+		ok = gpuEngine->LaunchSEARCH_MODE_SA(found);
 		for (int i = 0; i < (int)found.size() && !endOfSearch; i++) {
 			ITEM it = found[i];
 					
@@ -281,7 +281,7 @@ void KeyHunt::FindKeyGPU(TH_PARAM * ph)
 
 	delete[] keys;
 	delete[] list_pubKey;
-	delete g;
+	delete gpuEngine;
 
 	ph->isRunning = false;
 
@@ -289,24 +289,24 @@ void KeyHunt::FindKeyGPU(TH_PARAM * ph)
 
 // ----------------------------------------------------------------------------
 
-bool KeyHunt::isAlive(TH_PARAM * p)
+bool KeyHunt::isAlive(TH_PARAM * params)
 {
 	bool isAlive = true;
 	int total = nbGPUThread;
 	for (int i = 0; i < total; i++)
-		isAlive = isAlive && p[i].isRunning;
+		isAlive = isAlive && params[i].isRunning;
 
 	return isAlive;
 }
 
 // ----------------------------------------------------------------------------
 
-bool KeyHunt::hasStarted(TH_PARAM * p)
+bool KeyHunt::hasStarted(TH_PARAM * params)
 {
 	bool hasStarted = true;
 	int total = nbGPUThread;
 	for (int i = 0; i < total; i++)
-		hasStarted = hasStarted && p[i].hasStarted;
+		hasStarted = hasStarted && params[i].hasStarted;
 
 	return hasStarted;
 }
