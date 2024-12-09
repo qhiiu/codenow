@@ -17,7 +17,7 @@ using namespace std;
 Point Gn[CPU_GRP_SIZE / 2]; 
 Point _2Gn;
 
-#include "hashToAddr.cpp"
+#include "hiiu_HashToAddr.cpp"
 
 
 // ----------------------------------------------------------------------------

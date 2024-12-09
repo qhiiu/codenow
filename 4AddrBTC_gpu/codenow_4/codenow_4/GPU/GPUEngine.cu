@@ -14,7 +14,6 @@
 #include "GPUHash.h"
 #include "GPUBase58.h"
 
-// #include "GPUCompute.h" 
 //======================================================================================
 
 #include <device_atomic_functions.h>
@@ -57,8 +56,7 @@ __device__ __noinline__ void Check__Hash(uint64_t* px, uint64_t* py, uint32_t in
 
 
 
-
-	// ---------- so sánh từng h[5] với arrData -------------- 
+	// ---------- compare each h[5] to arrData -------------- 
 	// 1 =============== P2PKH_C + P2PKH_U ===============
 	uint32_t n_P2PKH = __input_arrData_P2PKH_GPU[0];
 	
@@ -668,7 +666,6 @@ bool GPUEngine::LaunchSEARCH_MODE_SA(std::vector<ITEM>& dataFound)
 
 	// When can perform a standard copy, the kernel is eneded 
 	CudaSafeCall(cudaMemcpy(outputBufferPinned, outputBuffer, nbFound * ITEM_SIZE_A + 4, cudaMemcpyDeviceToHost)); // ITEM_SIZE_A = 32
-	// CudaSafeCall(cudaMemcpy(outputBufferPinned, outputBuffer, nbFound * 32 + 4, cudaMemcpyDeviceToHost)); // ITEM_SIZE_A = 32
 
 	for (uint32_t i = 0; i < nbFound; i++) //if found right key-hash-addr
 	{ 
