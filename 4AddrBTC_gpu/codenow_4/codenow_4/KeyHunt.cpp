@@ -12,12 +12,13 @@
 #include <iostream>
 #include <cassert>
 #include <pthread.h>
+#include "hiiu_HashToAddr.cpp"
+
 using namespace std;
 
 Point Gn[CPU_GRP_SIZE / 2]; 
 Point _2Gn;
 
-#include "hiiu_HashToAddr.cpp"
 
 
 // ----------------------------------------------------------------------------
