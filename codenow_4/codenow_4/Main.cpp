@@ -182,7 +182,7 @@ void run(){
 
     // listAddr -> arrData ----start ===========================
     std::string name_file_data = "data/1000_btc.txt";
-    // std::string name_file_data = "hiiu_test_data.txt"; // test-here -----------------------------
+    // std::string name_file_data = "data/test_data.txt"; // test-here -----------------------------
 
     std::cout << "\nName_file_data : " << name_file_data;
     ifstream file_data(name_file_data); 

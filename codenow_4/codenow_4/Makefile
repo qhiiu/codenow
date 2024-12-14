@@ -32,8 +32,8 @@ $(OBJDIR)/%.o : %.cpp
 all: KeyHunt
 
 KeyHunt: $(OBJET)
-	@echo Making k ...
-	$(CXX) $(OBJET) $(LFLAGS) -o k
+	@echo Making hiiu ...
+	$(CXX) $(OBJET) $(LFLAGS) -o hiiu
 
 $(OBJET): | $(OBJDIR) $(OBJDIR)/GPU $(OBJDIR)/hash
 
